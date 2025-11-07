@@ -168,9 +168,16 @@ const formatTime = (dateString: string) => {
 }
 
 const getSalaNumber = (salaId: string) => {
-
-  const hash = salaId.split('-')[0]
-  return parseInt(hash.substring(0, 2), 16) % 10 || 1
+  // Manejo seguro para extraer número de sala
+  const parts = salaId.split('-')
+  if (parts.length === 0) return 1
+  
+  const hash = parts[0]
+  if (!hash || hash.length === 0) return 1
+  
+  // Intentar extraer número del hash o usar un cálculo alternativo
+  const parsed = parseInt(hash.substring(0, 2), 16)
+  return isNaN(parsed) ? 1 : (parsed % 10) || 1
 }
 </script>
 
