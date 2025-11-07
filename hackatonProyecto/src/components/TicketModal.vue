@@ -169,10 +169,15 @@
 </template>
 
 <script setup lang="ts">
-import * as domtoimage from 'dom-to-image-more';
 import QRCode from "qrcode";
 import { nextTick, onMounted, ref, watch } from "vue";
-import { supabase } from "../lib/supabase";
+import { useImageCapture } from "../composables/useImageCapture";
+import { useNotifications } from "../composables/useNotifications";
+import { useSupabaseHelpers } from "../composables/useSupabaseHelpers";
+
+const { sendEmailWithRetry } = useSupabaseHelpers();
+const { showSuccess, handleEmailError, handleImageError } = useNotifications();
+const { captureTicketImage } = useImageCapture();
 
 interface TicketData {
   reservationId: string;
@@ -252,20 +257,19 @@ const downloadTicket = async () => {
   if (!ticketRef.value) return;
 
   try {
-    // Capturar el ticket completo como imagen usando dom-to-image-more
-    const dataUrl = await domtoimage.toPng(ticketRef.value, {
-      quality: 1.0,
-      bgcolor: '#ffffff'
-    });
+    // Capturar el ticket usando el composable mejorado
+    const dataUrl = await captureTicketImage(ticketRef.value);
 
     // Descargar la imagen
     const link = document.createElement('a');
     link.download = `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.png`;
     link.href = dataUrl;
     link.click();
+
+    showSuccess('Descarga Exitosa', 'Tu ticket se ha descargado correctamente.');
   } catch (error) {
     console.error('Error al descargar ticket:', error);
-    alert('Error al descargar el ticket. Por favor, intenta de nuevo.');
+    handleImageError(error);
   }
 };
 
@@ -275,11 +279,8 @@ const sendEmail = async () => {
   emailSending.value = true;
 
   try {
-    // Capturar el ticket como imagen usando dom-to-image-more
-    const imageBase64 = await domtoimage.toPng(ticketRef.value, {
-      quality: 1.0,
-      bgcolor: '#ffffff'
-    });
+    // Capturar el ticket usando el composable mejorado
+    const imageBase64 = await captureTicketImage(ticketRef.value);
     
     // Preparar datos del email
     const emailData = {
@@ -294,18 +295,20 @@ const sendEmail = async () => {
       ticketImage: imageBase64 // Incluir la imagen del ticket con QR
     };
 
-    // Llamar a la Edge Function de Supabase para enviar el email
-    const { error } = await supabase.functions.invoke('send-ticket-email', {
-      body: emailData
-    });
+    // Usar el helper mejorado para enviar email con reintentos
+    const result = await sendEmailWithRetry(emailData);
 
-    if (error) throw error;
+    if (result.success) {
+      console.log('✉️ Email enviado exitosamente a:', props.ticketData.userEmail);
+      showSuccess('Email Enviado', `Tu ticket fue enviado a ${props.ticketData.userEmail}`);
+    } else {
+      console.error('❌ Error al enviar email después de varios intentos:', result.error);
+      handleEmailError(result.error);
+    }
     
-    console.log('✉️ Email enviado exitosamente a:', props.ticketData.userEmail);
-    // alert(`✅ Ticket enviado exitosamente a ${props.ticketData.userEmail}`);
-  } catch (error) {
-    console.error('❌ Error al enviar email:', error);
-    // alert('⚠️ No se pudo enviar el email automáticamente. Por favor, descarga tu ticket.');
+  } catch (error: any) {
+    console.error('❌ Error al procesar ticket para email:', error);
+    handleEmailError(error);
   } finally {
     emailSending.value = false;
   }
