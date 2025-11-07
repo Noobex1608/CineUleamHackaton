@@ -1,34 +1,38 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
-  >
-    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-      <div class="text-center mb-8">
-        <div
-          class="mx-auto bg-[#C1272D] rounded-full w-16 h-16 flex items-center justify-center mb-4"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-            />
-          </svg>
+  <div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="absolute inset-0 z-0">
+      <img 
+        src="../assets/GenteCine2.jpg" 
+        alt="" 
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black opacity-60"></div>
+    </div>
+
+    <div class="relative z-10 max-w-md w-full space-y-6 bg-white p-8 rounded-2xl shadow-2xl border border-gray-100">
+      <div>
+        <div class="flex justify-center">
+          <div class="bg-[#C1272D] p-3 rounded-full">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
+          </div>
         </div>
-        <h2 class="text-2xl font-bold text-gray-900">Registrarse</h2>
-        <p class="text-sm text-gray-600 mt-2">
+        <h2 class="mt-4 text-center text-2xl font-bold text-gray-900">
+          Registrarse
+        </h2>
+        <p class="mt-1 text-center text-sm text-gray-600">
           Crea tu cuenta con tu correo institucional ULEAM
         </p>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div>
+      <form @submit.prevent="handleSubmit" class="mt-6 space-y-4">
+        <div class="space-y-3">
           <label
             for="fullName"
             class="block text-sm font-medium text-gray-700 mb-1"
@@ -57,12 +61,15 @@
               id="fullName"
               v-model="formData.fullName"
               type="text"
-              class="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+              class="appearance-none relative block w-full pl-10 pr-3 py-2.5 border rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent transition-all duration-200"
               :class="errors.fullName ? 'border-red-500' : 'border-gray-300'"
               placeholder="Juan Pérez García"
             />
           </div>
-          <p v-if="errors.fullName" class="text-red-500 text-xs mt-1">
+          <p v-if="errors.fullName" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
             {{ errors.fullName }}
           </p>
         </div>
@@ -96,12 +103,15 @@
               id="email"
               v-model="formData.email"
               type="email"
-              class="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+              class="appearance-none relative block w-full pl-10 pr-3 py-2.5 border rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent transition-all duration-200"
               :class="errors.email ? 'border-red-500' : 'border-gray-300'"
               placeholder="tu.nombre@live.uleam.edu.ec"
             />
           </div>
-          <p v-if="errors.email" class="text-red-500 text-xs mt-1">
+          <p v-if="errors.email" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
             {{ errors.email }}
           </p>
         </div>
@@ -135,18 +145,18 @@
               id="password"
               v-model="formData.password"
               :type="showPassword ? 'text' : 'password'"
-              class="w-full pl-10 pr-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+              class="appearance-none relative block w-full pl-10 pr-10 py-2.5 border rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent transition-all duration-200"
               :class="errors.password ? 'border-red-500' : 'border-gray-300'"
               placeholder="••••••••"
             />
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg
                 v-if="!showPassword"
-                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+                class="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -166,7 +176,7 @@
               </svg>
               <svg
                 v-else
-                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+                class="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -180,7 +190,10 @@
               </svg>
             </button>
           </div>
-          <p v-if="errors.password" class="text-red-500 text-xs mt-1">
+          <p v-if="errors.password" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
             {{ errors.password }}
           </p>
         </div>
@@ -214,7 +227,7 @@
               id="confirmPassword"
               v-model="formData.confirmPassword"
               :type="showConfirmPassword ? 'text' : 'password'"
-              class="w-full pl-10 pr-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+              class="appearance-none relative block w-full pl-10 pr-10 py-2.5 border rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent transition-all duration-200"
               :class="
                 errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
               "
@@ -223,11 +236,11 @@
             <button
               type="button"
               @click="showConfirmPassword = !showConfirmPassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg
                 v-if="!showConfirmPassword"
-                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+                class="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -247,7 +260,7 @@
               </svg>
               <svg
                 v-else
-                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+                class="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -261,30 +274,35 @@
               </svg>
             </button>
           </div>
-          <p v-if="errors.confirmPassword" class="text-red-500 text-xs mt-1">
+          <p v-if="errors.confirmPassword" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
             {{ errors.confirmPassword }}
           </p>
         </div>
 
-        <button
-          type="submit"
-          class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
-        >
-          Registrarse
-        </button>
-      </form>
-
-      <div class="mt-6 text-center">
-        <p class="text-sm text-gray-600">
-          ¿Ya tienes una cuenta?
-          <router-link
-            to="/login"
-            class="text-[#C1272D] hover:text-[#8B1F23] font-medium"
+        <div>
+          <button
+            type="submit"
+            class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent font-semibold rounded-lg text-white bg-[#C1272D] hover:bg-[#8B1F23] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C1272D] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
           >
-            Iniciar Sesión
-          </router-link>
-        </p>
-      </div>
+            Registrarse
+          </button>
+        </div>
+
+        <div class="text-center">
+          <p class="text-sm text-gray-600">
+            ¿Ya tienes una cuenta?
+            <router-link
+              to="/login"
+              class="font-medium text-[#C1272D] hover:text-[#8B1F23] transition-colors"
+            >
+              Iniciar Sesión
+            </router-link>
+          </p>
+        </div>
+      </form>
     </div>
   </div>
 </template>
