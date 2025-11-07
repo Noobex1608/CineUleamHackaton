@@ -154,10 +154,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
-const router = useRouter()
 const { login } = useAuth()
 
 const email = ref('')
@@ -197,7 +195,7 @@ const handleSubmit = async () => {
   
   try {
     await login(email.value, password.value)
-    router.push('/')
+    // La redirección se maneja automáticamente en el composable useAuth
   } catch (error: any) {
     console.error('Error al iniciar sesión:', error)
     

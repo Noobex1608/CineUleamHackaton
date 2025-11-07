@@ -2,5 +2,5 @@ export interface Usuario {
   id: string
   nombre: string
   correo_institucional: string
-  tipo: string
+  tipo: 'estudiante' | 'admin'
 }

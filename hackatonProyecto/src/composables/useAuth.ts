@@ -1,12 +1,15 @@
 import { ref, computed } from 'vue'
 import { supabase } from '../lib/supabase'
+import { router } from '../router/router'
 import type { Usuario } from '../interfaces'
 
 const currentUser = ref<Usuario | null>(null)
 const isAuthenticated = computed(() => currentUser.value !== null)
+const isAdmin = computed(() => currentUser.value?.tipo === 'admin')
+const isStudent = computed(() => currentUser.value?.tipo === 'estudiante')
 
 export function useAuth() {
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, redirect: boolean = true) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -25,6 +28,15 @@ export function useAuth() {
 
       currentUser.value = usuario
       localStorage.setItem('user', JSON.stringify(usuario))
+
+      // Redirección automática según el tipo de usuario
+      if (redirect) {
+        if (usuario.tipo === 'admin') {
+          router.push('/admin')
+        } else if (usuario.tipo === 'estudiante') {
+          router.push('/')
+        }
+      }
     }
 
     return data
@@ -36,6 +48,27 @@ export function useAuth() {
 
     currentUser.value = null
     localStorage.removeItem('user')
+    
+    // Redirigir al login después del logout
+    router.push('/login')
+  }
+
+  const getRedirectPath = (usuario: Usuario): string => {
+    switch (usuario.tipo) {
+      case 'admin':
+        return '/admin'
+      case 'estudiante':
+        return '/'
+      default:
+        return '/'
+    }
+  }
+
+  const redirectToUserDashboard = () => {
+    if (currentUser.value) {
+      const path = getRedirectPath(currentUser.value)
+      router.push(path)
+    }
   }
 
   const checkSession = async () => {
@@ -98,9 +131,13 @@ export function useAuth() {
   return {
     currentUser,
     isAuthenticated,
+    isAdmin,
+    isStudent,
     login,
     logout,
     checkSession,
     register,
+    getRedirectPath,
+    redirectToUserDashboard,
   }
 }

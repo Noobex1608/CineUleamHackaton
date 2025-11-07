@@ -596,12 +596,12 @@ const peliculas = ref<Pelicula[]>([
 
 const usuarios = ref<Usuario[]>([
   { id: '1', nombre: 'Juan Pérez', correo_institucional: 'juan.perez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '2', nombre: 'María García', correo_institucional: 'maria.garcia@live.uleam.edu.ec', tipo: 'docente' },
+  { id: '2', nombre: 'María García', correo_institucional: 'maria.garcia@live.uleam.edu.ec', tipo: 'admin' },
   { id: '3', nombre: 'Carlos López', correo_institucional: 'carlos.lopez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '4', nombre: 'Ana Rodríguez', correo_institucional: 'ana.rodriguez@live.uleam.edu.ec', tipo: 'docente' },
+  { id: '4', nombre: 'Ana Rodríguez', correo_institucional: 'ana.rodriguez@live.uleam.edu.ec', tipo: 'admin' },
   { id: '5', nombre: 'Luis Martínez', correo_institucional: 'luis.martinez@live.uleam.edu.ec', tipo: 'estudiante' },
   { id: '6', nombre: 'Sofia Hernández', correo_institucional: 'sofia.hernandez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '7', nombre: 'Diego Torres', correo_institucional: 'diego.torres@live.uleam.edu.ec', tipo: 'docente' },
+  { id: '7', nombre: 'Diego Torres', correo_institucional: 'diego.torres@live.uleam.edu.ec', tipo: 'admin' },
   { id: '8', nombre: 'Isabella Cruz', correo_institucional: 'isabella.cruz@live.uleam.edu.ec', tipo: 'estudiante' }
 ])
 
