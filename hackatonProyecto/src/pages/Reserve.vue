@@ -47,7 +47,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
         <p class="text-red-600">{{ error }}</p>
-        <button @click="loadSeats" class="mt-2 text-sm text-red-700 hover:text-red-800 underline">
+        <button @click="() => loadSeats()" class="mt-2 text-sm text-red-700 hover:text-red-800 underline">
           Intentar de nuevo
         </button>
       </div>
@@ -69,7 +69,7 @@
             </div>
             <div class="flex items-center gap-6 text-sm flex-wrap">
               <div class="flex items-center gap-2">
-                <div class="w-4 h-4 bg-gray-600 rounded"></div>
+                <div class="w-4 h-4 bg-[#C1272D] rounded"></div>
                 <span class="text-gray-700">Reservado</span>
               </div>
               <div class="flex items-center gap-2">
@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TicketModal from '../components/TicketModal.vue'
 import Toast from '../components/Toast.vue'
@@ -182,6 +182,10 @@ const router = useRouter()
 const route = useRoute()
 const { currentUser } = useAuth()
 const maxSeats = 1
+
+// Intervalo para recarga automática
+let reloadInterval: number | null = null
+let realtimeChannel: any = null
 
 interface Seat {
   id: string
@@ -256,13 +260,16 @@ const displayToast = (title: string, message: string, type: 'success' | 'error' 
 }
 
 // Cargar asientos dinámicamente basándose en la capacidad de la sala
-const loadSeats = async () => {
+const loadSeats = async (showLoading = true) => {
   try {
-    loading.value = true
+    if (showLoading) {
+      loading.value = true
+    }
     error.value = null
 
-    console.log('🎬 Datos de la película:', movie.value)
-    console.log('🏢 Sala ID:', movie.value.sala_id)
+    // Debug logs (comentados para producción)
+    // console.log('🎬 Datos de la película:', movie.value)
+    // console.log('🏢 Sala ID:', movie.value.sala_id)
 
     // 1. Obtener información de la sala
     const { data: salaData, error: salaError } = await supabase
@@ -271,8 +278,8 @@ const loadSeats = async () => {
       .eq('id', movie.value.sala_id)
       .single()
 
-    console.log('🏢 Datos de la sala:', salaData)
-    console.log('❌ Error de sala:', salaError)
+    // console.log('🏢 Datos de la sala:', salaData)
+    // console.log('❌ Error de sala:', salaError)
 
     if (salaError || !salaData) {
       error.value = `La sala con ID ${movie.value.sala_id} no existe en la base de datos. Por favor, verifica que la película esté asociada a una sala válida.`
@@ -281,13 +288,13 @@ const loadSeats = async () => {
     }
 
     const capacidad = salaData.capacidad
-    console.log('📊 Capacidad:', capacidad)
+    // console.log('📊 Capacidad:', capacidad)
 
     // 2. Calcular número de filas y columnas basado en la capacidad
     // Ratio aproximado de 1:2 (filas:columnas) para una sala de cine típica
     const numFilas = Math.ceil(Math.sqrt(capacidad / 2))
     const numColumnas = Math.ceil(capacidad / numFilas)
-    console.log(`📐 Matriz: ${numFilas} filas x ${numColumnas} columnas`)
+    // console.log(`📐 Matriz: ${numFilas} filas x ${numColumnas} columnas`)
 
     // 3. Obtener asientos ya reservados para esta película
     // JOIN: reserva -> asiento para obtener fila y numero
@@ -306,6 +313,9 @@ const loadSeats = async () => {
       .eq('pelicula_id', movie.value.id)
 
     if (reservasError) throw reservasError
+
+    // Debug: Ver datos crudos de Supabase (comentado para producción)
+    // console.log('📦 Datos crudos de reservas:', JSON.stringify(reservasData, null, 2))
 
     // Crear un Map con la clave "fila-numero" de los asientos reservados
     // y guardar el ID del asiento y el usuario que lo reservó
@@ -328,8 +338,14 @@ const loadSeats = async () => {
       })
     }
     
-    console.log('🔒 Asientos reservados (fila-numero):', Array.from(reservedSeatsMap.keys()))
-    console.log('👤 Usuario actual ID:', currentUser.value?.id)
+    // Debug logs (comentados para producción)
+    // console.log('🔒 Asientos reservados (fila-numero):', Array.from(reservedSeatsMap.keys()))
+    // console.log('👤 Usuario actual ID:', currentUser.value?.id)
+    
+    // Debug: mostrar detalles de cada reserva (comentado para producción)
+    // reservedSeatsMap.forEach((reservation, key) => {
+    //   console.log(`🪑 Asiento ${key}: Usuario ${reservation.userId}, ¿Es mío? ${reservation.userId === currentUser.value?.id}`)
+    // })
 
     // 4. Generar asientos dinámicamente
     const rows: SeatRow[] = []
@@ -358,8 +374,8 @@ const loadSeats = async () => {
       rows.push({ label: fila, seats })
     }
 
-    console.log('💺 Filas generadas:', rows.length)
-    console.log('💺 Primera fila:', rows[0])
+    // console.log('💺 Filas generadas:', rows.length)
+    // console.log('💺 Primera fila:', rows[0])
 
     // 5. Dividir en dos secciones: 80% izquierda, 20% derecha
     const leftRows: SeatRow[] = []
@@ -380,7 +396,7 @@ const loadSeats = async () => {
     seatRows.value = leftRows
     rightSeatRows.value = rightRows
 
-    console.log('✅ Asientos cargados - Izquierda:', seatRows.value.length, 'Derecha:', rightSeatRows.value.length)
+    // console.log('✅ Asientos cargados - Izquierda:', seatRows.value.length, 'Derecha:', rightSeatRows.value.length)
 
   } catch (err: any) {
     console.error('❌ Error al cargar asientos:', err)
@@ -398,7 +414,7 @@ const getSeatClass = (seat: Seat) => {
     return 'bg-green-600 text-white cursor-default'
   }
   if (seat.status === 'reserved') {
-    return 'bg-gray-600 text-gray-800 cursor-not-allowed'
+    return 'bg-[#C1272D] text-white cursor-not-allowed'
   }
   return 'bg-gray-500 text-white hover:bg-gray-400'
 }
@@ -498,7 +514,7 @@ const confirmReservation = async () => {
 
     if (reservaExistente) {
       displayToast('Asiento Ocupado', 'Este asiento ya ha sido reservado por otro usuario. Por favor, selecciona otro.', 'warning')
-      await loadSeats() // Recargar asientos
+      await loadSeats(false) // Recargar asientos sin loading
       return
     }
 
@@ -551,8 +567,8 @@ const confirmReservation = async () => {
     showTicketModal.value = true
     
     // 9. Recargar asientos en segundo plano para reflejar la nueva reserva
-    // (sin bloquear el modal del ticket)
-    loadSeats().catch(err => console.error('Error al recargar asientos:', err))
+    // (sin bloquear el modal del ticket y sin mostrar loading)
+    loadSeats(false).catch(err => console.error('Error al recargar asientos:', err))
 
   } catch (err: any) {
     console.error('Error al crear reserva:', err)
@@ -572,12 +588,48 @@ const confirmReservation = async () => {
 
 const handleCloseTicket = () => {
   showTicketModal.value = false
-  router.push('/')
+  // Actualizar el estado para mostrar la reserva del usuario
+  userHasReservation.value = true
+  // Recargar asientos sin mostrar loading (actualización silenciosa)
+  loadSeats(false)
 }
 
 // Cargar asientos al montar el componente
 onMounted(() => {
-  loadSeats()
+  loadSeats() // Primera carga con loading
+  
+  // Recargar asientos cada 5 segundos para mantener sincronizados (sin loading)
+  reloadInterval = window.setInterval(() => {
+    loadSeats(false)
+  }, 5000) // 5 segundos
+  
+  // Suscribirse a cambios en tiempo real en la tabla reserva
+  realtimeChannel = supabase
+    .channel('reservas-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // INSERT, UPDATE, DELETE
+        schema: 'public',
+        table: 'reserva',
+        filter: `pelicula_id=eq.${movie.value.id}`
+      },
+      () => {
+        // Recargar asientos cuando hay cambios (sin loading)
+        loadSeats(false)
+      }
+    )
+    .subscribe()
+})
+
+// Limpiar el intervalo y suscripción al desmontar
+onUnmounted(() => {
+  if (reloadInterval) {
+    clearInterval(reloadInterval)
+  }
+  if (realtimeChannel) {
+    supabase.removeChannel(realtimeChannel)
+  }
 })
 </script>
 

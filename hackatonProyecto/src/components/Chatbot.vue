@@ -113,10 +113,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { supabase } from '../lib/supabase'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import type { Pelicula } from '../interfaces/Pelicula'
+import { supabase } from '../lib/supabase'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -150,7 +150,7 @@ const loadPeliculas = async () => {
     
     if (error) throw error
     peliculasDisponibles.value = data || []
-    console.log(`🎬 ${peliculasDisponibles.value.length} películas cargadas para el chatbot`)
+    // console.log(`🎬 ${peliculasDisponibles.value.length} películas cargadas para el chatbot`)
   } catch (error) {
     console.error('Error al cargar películas para el chatbot:', error)
   }
