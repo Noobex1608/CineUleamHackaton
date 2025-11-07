@@ -102,7 +102,7 @@
 
 
     <main 
-      id="main-content"
+      id="cartelera"
       class="container mx-auto px-8 mt-10 pb-16 grow"
       role="main"
     >
