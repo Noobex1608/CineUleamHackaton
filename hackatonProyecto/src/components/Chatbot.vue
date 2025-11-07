@@ -227,8 +227,70 @@ const formatMarkdown = (text: string): string => {
   return marked.parse(text) as string
 }
 
+// Función para sanitizar y validar entrada del usuario
+const sanitizeInput = (input: string): string | null => {
+  // Limitar longitud máxima
+  const MAX_LENGTH = 500
+  if (input.length > MAX_LENGTH) {
+    return null
+  }
+
+  // Eliminar espacios en blanco excesivos
+  let sanitized = input.trim().replace(/\s+/g, ' ')
+
+  // Patrones peligrosos a detectar
+  const dangerousPatterns = [
+    // SQL Injection
+    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE|CAST|CONVERT)\b)/gi,
+    /(-{2}|\/\*|\*\/|;|\|\||&&)/g, // Comentarios SQL y operadores
+    /(0x[0-9a-f]+)/gi, // Números hexadecimales (común en inyecciones)
+    /(\bOR\b|\bAND\b)\s+['"]?\w+['"]?\s*=\s*['"]?\w+['"]?/gi, // OR/AND conditions típicas de inyección
+    
+    // XSS y Scripts
+    /(<script[^>]*>.*?<\/script>)/gi,
+    /(<iframe[^>]*>.*?<\/iframe>)/gi,
+    /(javascript:)/gi,
+    /(on\w+\s*=)/gi, // Eventos JavaScript (onclick, onerror, etc)
+    
+    // Command Injection
+    /(\$\(.*\))/g, // Command substitution
+    /(&&|\|\||\||;|`)/g, // Shell operators
+    /(\.\.\/|\.\.\\)/g, // Path traversal
+    
+    // Intentos de bypass del sistema
+    /(system|systemPrompt|API|api_key|token|password|admin|root|sudo)/gi,
+    /(ignore|forget|disregard)\s+(previous|all|instructions|rules)/gi,
+  ]
+
+  // Verificar patrones peligrosos
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(sanitized)) {
+      console.warn('⚠️ Patrón peligroso detectado en entrada del usuario')
+      return null
+    }
+  }
+
+  // Limitar caracteres especiales repetidos
+  sanitized = sanitized.replace(/([^\w\s])\1{2,}/g, '$1$1')
+
+  // Verificar que contenga al menos algún carácter alfanumérico
+  if (!/[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ]/.test(sanitized)) {
+    return null
+  }
+
+  return sanitized
+}
+
 const callPerplexityAPI = async (userMessage: string): Promise<string> => {
   try {
+    // Sanitizar entrada del usuario ANTES de enviar a la API
+    const sanitizedMessage = sanitizeInput(userMessage)
+    
+    if (!sanitizedMessage) {
+      console.warn('⚠️ Mensaje bloqueado por seguridad')
+      return '⚠️ Lo siento, tu mensaje contiene patrones no permitidos por razones de seguridad. Por favor, reformula tu pregunta sobre películas y cultura de manera natural.'
+    }
+
     // Construir el historial de mensajes para contexto
     // Asegurarse de que los mensajes alternen entre user y assistant
     const conversationHistory: { role: string; content: string }[] = []
@@ -264,7 +326,7 @@ const callPerplexityAPI = async (userMessage: string): Promise<string> => {
           ...conversationHistory,
           {
             role: 'user',
-            content: userMessage
+            content: sanitizedMessage // Usar mensaje sanitizado
           }
         ],
         temperature: 0.7,
@@ -304,6 +366,17 @@ const callPerplexityAPI = async (userMessage: string): Promise<string> => {
 const sendMessage = async (content: string) => {
   if (!content.trim()) return
 
+  // Validar longitud antes de agregar
+  if (content.length > 500) {
+    messages.value.push({
+      role: 'assistant',
+      content: '⚠️ Tu mensaje es demasiado largo. Por favor, mantén tus preguntas en menos de 500 caracteres.',
+      timestamp: new Date()
+    })
+    scrollToBottom()
+    return
+  }
+
   messages.value.push({
     role: 'user',
     content: content,
@@ -314,7 +387,7 @@ const sendMessage = async (content: string) => {
   isTyping.value = true
   scrollToBottom()
 
-  // Llamar a la API de Perplexity
+  // Llamar a la API de Perplexity (ya incluye sanitización)
   const response = await callPerplexityAPI(content)
 
   messages.value.push({
