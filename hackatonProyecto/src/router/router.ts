@@ -32,6 +32,11 @@ const routes = [
     name: "Reserve",
     component: Reserve,
   },
+  {
+    path: "/admin",
+    name: "admin",
+    component: () => import("../pages/Admin.vue"),
+  }
 ];
 
 export const router = createRouter({
