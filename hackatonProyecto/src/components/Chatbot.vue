@@ -113,8 +113,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, computed } from 'vue'
 import axios from 'axios'
+import { supabase } from '../lib/supabase'
+import type { Pelicula } from '../interfaces/Pelicula'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -127,6 +129,7 @@ const userInput = ref('')
 const isTyping = ref(false)
 const messages = ref<Message[]>([])
 const messagesContainer = ref<HTMLElement | null>(null)
+const peliculasDisponibles = ref<Pelicula[]>([])
 
 const PERPLEXITY_API_KEY = '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'
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
@@ -137,24 +140,65 @@ const suggestions = ref([
   'Contexto histórico'
 ])
 
-const systemPrompt = `Eres un asistente cultural cinematográfico experto llamado "CineIA Cultural". Tu misión es servir como puente cultural entre diferentes cinematografías del mundo.
+// Cargar películas disponibles
+const loadPeliculas = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pelicula')
+      .select('*')
+      .order('fecha_hora_proyeccion', { ascending: true })
+    
+    if (error) throw error
+    peliculasDisponibles.value = data || []
+    console.log(`🎬 ${peliculasDisponibles.value.length} películas cargadas para el chatbot`)
+  } catch (error) {
+    console.error('Error al cargar películas para el chatbot:', error)
+  }
+}
 
-Tus capacidades incluyen:
-- Explicar referencias culturales, históricas y sociales en películas
-- Establecer conexiones transculturales entre películas de diferentes países
-- Comparar cómo diferentes culturas abordan temas universales (honor, familia, libertad, identidad, etc.)
-- Sugerir películas relacionadas de diversas cinematografías
-- Analizar contextos históricos y sociales de las películas
-- Revelar patrones y similitudes entre diferentes culturas a través del cine
+// Generar lista de películas para el prompt
+const peliculasContext = computed(() => {
+  if (peliculasDisponibles.value.length === 0) return 'No hay películas disponibles actualmente.'
+  
+  return peliculasDisponibles.value.map(p => {
+    const fecha = new Date(p.fecha_hora_proyeccion).toLocaleDateString('es-ES')
+    return `- "${p.nombre}" (${p.idioma}) - ${p.descripcion || 'Sin descripción'} - Proyección: ${fecha}`
+  }).join('\n')
+})
+
+const systemPrompt = computed(() => `Eres un asistente cultural cinematográfico experto llamado "CineIA Cultural" para CineUleam. Tu misión es servir como puente cultural entre diferentes cinematografías del mundo, enfocándote ESPECÍFICAMENTE en las películas disponibles en nuestra plataforma.
+
+🎬 PELÍCULAS DISPONIBLES EN CINEULEAM:
+${peliculasContext.value}
+
+📋 TUS CAPACIDADES (basadas en nuestro catálogo):
+
+1. **Referencias Culturales**: Explica referencias culturales, históricas y sociales SOLO de las películas listadas arriba que están en nuestra plataforma.
+
+2. **Conexiones Transculturales**: Establece conexiones entre las películas de NUESTRO CATÁLOGO, comparando cómo diferentes culturas abordan temas universales (honor, familia, libertad, identidad, etc.).
+
+3. **Análisis de Películas Disponibles**: Proporciona análisis profundo del contexto histórico y social de las películas que TENEMOS en la plataforma.
+
+4. **Comparaciones en Nuestro Catálogo**: Compara y contrasta las películas disponibles en nuestra plataforma según temas, estilos, culturas, épocas.
+
+5. **Recomendaciones Externas**: SOLO cuando el usuario pida sugerencias de películas similares, puedes recomendar películas QUE NO ESTÁN en nuestra plataforma, pero SIEMPRE menciona primero las películas similares de nuestro catálogo y luego sugiere otras externas.
+
+⚠️ REGLAS IMPORTANTES:
+- SIEMPRE prioriza hablar de las películas que están en nuestra plataforma
+- Si mencionas una película, verifica que esté en la lista de arriba
+- Cuando hagas comparaciones, usa SOLO películas de nuestro catálogo
+- Si el usuario pregunta por una película que NO está en nuestro catálogo, informa que no la tenemos y sugiere películas similares de las que SÍ tenemos
+- Solo recomienda películas externas cuando específicamente pidan "películas similares" o "recomendaciones"
 
 Cuando respondas:
 - Sé conciso pero informativo
-- Usa emojis relevantes (🎭, 🌍, 📽️, 💡, 🎬)
-- Proporciona ejemplos específicos de películas
-- Establece conexiones entre culturas
-- Fomenta el estudio comparativo de culturas
+- Usa emojis relevantes (🎭, 🌍, 📽️, 💡, 🎬, 🎥)
+- Proporciona ejemplos específicos de NUESTRAS películas
+- Menciona las fechas de proyección cuando sea relevante
+- Establece conexiones entre culturas usando nuestro catálogo
+- Fomenta que los usuarios vean las películas disponibles
 
-Responde en español de manera educativa y accesible.`
+Responde en español de manera educativa, accesible y siempre enfocado en nuestro catálogo actual.`)
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -184,7 +228,7 @@ const callPerplexityAPI = async (userMessage: string): Promise<string> => {
         messages: [
           {
             role: 'system',
-            content: systemPrompt
+            content: systemPrompt.value
           },
           ...conversationHistory,
           {
@@ -240,10 +284,29 @@ const handleSubmit = () => {
   sendMessage(userInput.value)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Cargar películas primero
+  await loadPeliculas()
+  
+  // Mensaje de bienvenida personalizado
+  const numPeliculas = peliculasDisponibles.value.length
+  const peliculasLista = peliculasDisponibles.value.length > 0
+    ? '\n\n🎬 Películas disponibles:\n' + peliculasDisponibles.value.map(p => `• ${p.nombre} (${p.idioma})`).join('\n')
+    : ''
+  
   messages.value.push({
     role: 'assistant',
-    content: '¡Hola! 👋 Soy tu asistente cultural cinematográfico. Puedo ayudarte a entender referencias culturales, comparar temas entre diferentes cinematografías y explorar conexiones transculturales. ¿Qué te gustaría descubrir hoy?',
+    content: `¡Hola! 👋 Soy tu asistente cultural cinematográfico de CineUleam. 
+
+Actualmente tenemos ${numPeliculas} película${numPeliculas !== 1 ? 's' : ''} en cartelera.${peliculasLista}
+
+Puedo ayudarte a:
+🎭 Entender referencias culturales de nuestras películas
+🌍 Comparar temas entre las películas de nuestro catálogo
+📽️ Explorar contextos históricos y sociales
+💡 Recomendar películas similares (dentro y fuera de nuestro catálogo)
+
+¿Qué te gustaría descubrir hoy?`,
     timestamp: new Date()
   })
 })

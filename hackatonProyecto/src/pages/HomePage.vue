@@ -90,7 +90,7 @@
               :class="[
                 'p-2 rounded transition-colors',
                 viewMode === 'grid' 
-                  ? 'bg-[#C1272D] bg-opacity-10' 
+                  ? 'bg-red-100' 
                   : 'hover:bg-gray-100'
               ]"
               title="Vista en cuadrícula"
@@ -112,7 +112,7 @@
               :class="[
                 'p-2 rounded transition-colors',
                 viewMode === 'list' 
-                  ? 'bg-[#C1272D] bg-opacity-10' 
+                  ? 'bg-red-100' 
                   : 'hover:bg-gray-100'
               ]"
               title="Vista en lista"
@@ -173,7 +173,7 @@
             :class="[
               'p-2 rounded transition-colors',
               viewMode === 'grid' 
-                ? 'bg-[#C1272D] bg-opacity-10' 
+                ? 'bg-red-100' 
                 : 'hover:bg-gray-100'
             ]"
             title="Vista en cuadrícula"
@@ -195,7 +195,7 @@
             :class="[
               'p-2 rounded transition-colors',
               viewMode === 'list' 
-                ? 'bg-[#C1272D] bg-opacity-10' 
+                ? 'bg-red-100' 
                 : 'hover:bg-gray-100'
             ]"
             title="Vista en lista"
