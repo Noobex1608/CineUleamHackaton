@@ -2,22 +2,22 @@
   <Transition name="modal">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
-      @click.self="closeModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-20 backdrop-blur-sm"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all"
+        ref="ticketRef"
+        class="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden transform transition-all"
       >
         <!-- Header -->
         <div
-          class="bg-linear-to-r from-[#C1272D] to-[#8B1F23] p-6 text-white relative"
+          class="bg-linear-to-r from-[#C1272D] to-[#8B1F23] p-3 text-white relative"
         >
           <button
             @click="closeModal"
-            class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+            class="absolute top-2 right-2 text-white hover:text-gray-200 transition-colors bg-white/20 rounded-full p-1"
           >
             <svg
-              class="w-6 h-6"
+              class="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -30,9 +30,9 @@
               />
             </svg>
           </button>
-          <div class="flex items-center gap-3 mb-2">
+          <div class="flex items-center gap-2 mb-1">
             <svg
-              class="w-8 h-8"
+              class="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -44,91 +44,91 @@
                 d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
               />
             </svg>
-            <h2 class="text-2xl font-bold">¡Reserva Confirmada!</h2>
+            <h2 class="text-lg font-bold">¡Reserva Confirmada!</h2>
           </div>
-          <p class="text-sm text-white/90">
+          <p class="text-xs text-white/90">
             Tu entrada ha sido generada exitosamente
           </p>
         </div>
 
         <!-- Ticket Content -->
-        <div class="p-6 space-y-4">
+        <div class="p-3 space-y-2">
           <!-- Movie Info -->
-          <div class="border-b border-gray-200 pb-4">
-            <h3 class="text-xl font-bold text-gray-800 mb-1">
+          <div class="border-b border-gray-200 pb-2">
+            <h3 class="text-base font-bold text-gray-800 mb-0.5">
               {{ ticketData.movieName }}
             </h3>
-            <p class="text-sm text-gray-600">{{ ticketData.movieLanguage }}</p>
+            <p class="text-xs text-gray-600">{{ ticketData.movieLanguage }}</p>
           </div>
 
           <!-- Details Grid -->
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-2">
             <!-- Fecha y Hora -->
-            <div class="bg-gray-50 rounded-lg p-3">
-              <p class="text-xs text-gray-500 mb-1">Fecha</p>
-              <p class="font-semibold text-gray-800">
+            <div class="bg-gray-50 rounded-lg p-1.5">
+              <p class="text-xs text-gray-500 mb-0.5">Fecha</p>
+              <p class="font-semibold text-gray-800 text-xs">
                 {{ formatDate(ticketData.dateTime) }}
               </p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <p class="text-xs text-gray-500 mb-1">Hora</p>
-              <p class="font-semibold text-gray-800">
+            <div class="bg-gray-50 rounded-lg p-1.5">
+              <p class="text-xs text-gray-500 mb-0.5">Hora</p>
+              <p class="font-semibold text-gray-800 text-xs">
                 {{ formatTime(ticketData.dateTime) }}
               </p>
             </div>
 
             <!-- Sala -->
-            <div class="bg-gray-50 rounded-lg p-3">
-              <p class="text-xs text-gray-500 mb-1">Sala</p>
-              <p class="font-semibold text-gray-800">
+            <div class="bg-gray-50 rounded-lg p-1.5">
+              <p class="text-xs text-gray-500 mb-0.5">Sala</p>
+              <p class="font-semibold text-gray-800 text-xs">
                 {{ ticketData.salaName }}
               </p>
             </div>
 
             <!-- Asiento -->
-            <div class="bg-gray-50 rounded-lg p-3">
-              <p class="text-xs text-gray-500 mb-1">Asiento</p>
-              <p class="font-semibold text-gray-800 text-lg">
+            <div class="bg-gray-50 rounded-lg p-1.5">
+              <p class="text-xs text-gray-500 mb-0.5">Asiento</p>
+              <p class="font-semibold text-gray-800 text-sm">
                 {{ ticketData.seatRow }}{{ ticketData.seatNumber }}
               </p>
             </div>
           </div>
 
           <!-- Usuario -->
-          <div class="bg-linear-to-r from-gray-50 to-gray-100 rounded-lg p-3">
-            <p class="text-xs text-gray-500 mb-1">Reservado por</p>
-            <p class="font-semibold text-gray-800">{{ ticketData.userName }}</p>
-            <p class="text-sm text-gray-600">{{ ticketData.userEmail }}</p>
+          <div class="bg-linear-to-r from-gray-50 to-gray-100 rounded-lg p-1.5">
+            <p class="text-xs text-gray-500 mb-0.5">Reservado por</p>
+            <p class="font-semibold text-gray-800 text-xs">{{ ticketData.userName }}</p>
+            <p class="text-xs text-gray-600">{{ ticketData.userEmail }}</p>
           </div>
 
           <!-- QR Code -->
-          <div class="flex justify-center py-4">
+          <div class="flex justify-center py-1">
             <div
-              class="bg-white p-4 rounded-xl border-2 border-gray-200 shadow-sm"
+              class="bg-white p-2 rounded-xl border-2 border-gray-200 shadow-sm"
             >
-              <canvas ref="qrCanvas" class="w-48 h-48"></canvas>
+              <canvas ref="qrCanvas" class="w-24 h-24"></canvas>
             </div>
           </div>
 
           <!-- Reservation ID -->
           <div class="text-center">
-            <p class="text-xs text-gray-500 mb-1">ID de Reserva</p>
+            <p class="text-xs text-gray-500 mb-0.5">ID de Reserva</p>
             <p
-              class="font-mono text-sm text-gray-800 bg-gray-100 py-2 px-4 rounded-lg inline-block"
+              class="font-mono text-xs text-gray-800 bg-gray-100 py-1 px-2 rounded-lg inline-block"
             >
-              {{ ticketData.reservationId }}
+              {{ ticketData.reservationId.substring(0, 13) }}...
             </p>
           </div>
         </div>
 
         <!-- Footer Actions -->
-        <div class="bg-gray-50 p-4 space-y-2">
+        <div class="bg-gray-50 p-2 space-y-1.5">
           <button
             @click="downloadTicket"
-            class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+            class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold py-2 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 text-xs"
           >
             <svg
-              class="w-5 h-5"
+              class="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -145,10 +145,10 @@
           <button
             @click="sendEmail"
             :disabled="emailSending"
-            class="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold py-3 rounded-lg border-2 border-gray-300 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold py-2 rounded-lg border-2 border-gray-300 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
           >
             <svg
-              class="w-5 h-5"
+              class="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -169,6 +169,7 @@
 </template>
 
 <script setup lang="ts">
+import html2canvas from "html2canvas";
 import QRCode from "qrcode";
 import { nextTick, onMounted, ref, watch } from "vue";
 
@@ -195,6 +196,7 @@ const emit = defineEmits<{
 }>();
 
 const qrCanvas = ref<HTMLCanvasElement | null>(null);
+const ticketRef = ref<HTMLElement | null>(null);
 const emailSending = ref(false);
 
 const formatDate = (dateString: string) => {
@@ -229,8 +231,8 @@ const generateQR = async () => {
 
   try {
     await QRCode.toCanvas(qrCanvas.value, qrData, {
-      width: 192,
-      margin: 2,
+      width: 96,
+      margin: 1,
       color: {
         dark: "#1F2937",
         light: "#FFFFFF",
@@ -245,20 +247,27 @@ const closeModal = () => {
   emit("close");
 };
 
-const downloadTicket = () => {
-  // Crear una imagen del ticket
-  const ticketElement = document.querySelector(
-    ".bg-white.rounded-2xl"
-  ) as HTMLElement;
-  if (!ticketElement) return;
+const downloadTicket = async () => {
+  if (!ticketRef.value) return;
 
-  // Por ahora, descargar solo el QR
-  if (qrCanvas.value) {
-    const dataUrl = qrCanvas.value.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = `ticket-${props.ticketData.reservationId}.png`;
+  try {
+    // Capturar el ticket completo como imagen
+    const canvas = await html2canvas(ticketRef.value, {
+      backgroundColor: '#ffffff',
+      scale: 2, // Mayor calidad
+      logging: false,
+      useCORS: true
+    });
+
+    // Convertir a imagen y descargar
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.png`;
     link.href = dataUrl;
     link.click();
+  } catch (error) {
+    console.error('Error al descargar ticket:', error);
+    alert('Error al descargar el ticket. Por favor, intenta de nuevo.');
   }
 };
 

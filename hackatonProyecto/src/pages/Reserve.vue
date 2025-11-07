@@ -1,5 +1,14 @@
 <template>
   <div class="min-h-screen bg-white py-8 px-4">
+    <!-- Toast Notification -->
+    <Toast
+      :show="showToast"
+      :message="toastMessage"
+      :title="toastTitle"
+      :type="toastType"
+      @close="showToast = false"
+    />
+    
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <div class="flex items-center gap-4 mb-8">
@@ -15,6 +24,19 @@
       <div v-if="movie" class="bg-gray-50 rounded-lg p-4 mb-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
         <p class="text-gray-600 text-sm">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+      </div>
+      
+      <!-- Mensaje de ya tiene reserva -->
+      <div v-if="userHasReservation && !loading" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <div>
+            <p class="font-semibold text-green-800">✅ Ya tienes una reserva para esta película</p>
+            <p class="text-sm text-green-700 mt-1">Tu asiento reservado está marcado en verde. Solo puedes reservar un asiento por película.</p>
+          </div>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -58,6 +80,10 @@
                 <div class="w-4 h-4 bg-cyan-500 rounded"></div>
                 <span class="text-gray-700">Seleccionado</span>
               </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-green-600 rounded"></div>
+                <span class="text-gray-700">Mi Reserva</span>
+              </div>
             </div>
           </div>
 
@@ -89,7 +115,7 @@
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
-                        :disabled="seat.status === 'reserved'"
+                        :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
                         class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
@@ -107,7 +133,7 @@
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
-                        :disabled="seat.status === 'reserved'"
+                        :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
                         class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
@@ -148,6 +174,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TicketModal from '../components/TicketModal.vue'
+import Toast from '../components/Toast.vue'
 import { useAuth } from '../composables/useAuth'
 import { supabase } from '../lib/supabase'
 
@@ -160,7 +187,8 @@ interface Seat {
   id: string
   number: number
   row: string
-  status: 'available' | 'reserved' | 'selected'
+  status: 'available' | 'reserved' | 'selected' | 'my-reservation'
+  reservedBy?: string // UUID del usuario que reservó
 }
 
 interface SeatRow {
@@ -186,6 +214,14 @@ const rightSeatRows = ref<SeatRow[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const showTicketModal = ref(false)
+const userHasReservation = ref(false)
+
+// Toast notification
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastTitle = ref('')
+const toastType = ref<'success' | 'error' | 'warning' | 'info'>('info')
+
 const ticketData = ref<TicketData>({
   reservationId: '',
   movieName: '',
@@ -209,6 +245,14 @@ const movie = computed(() => {
 
 const goBack = () => {
   router.back()
+}
+
+// Función para mostrar notificaciones toast
+const displayToast = (title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+  toastTitle.value = title
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
 }
 
 // Cargar asientos dinámicamente basándose en la capacidad de la sala
@@ -246,15 +290,46 @@ const loadSeats = async () => {
     console.log(`📐 Matriz: ${numFilas} filas x ${numColumnas} columnas`)
 
     // 3. Obtener asientos ya reservados para esta película
+    // JOIN: reserva -> asiento para obtener fila y numero
     const { data: reservasData, error: reservasError } = await supabase
       .from('reserva')
-      .select('asiento_id')
+      .select(`
+        id,
+        usuario_id,
+        asiento:asiento_id (
+          id,
+          fila,
+          numero,
+          sala_id
+        )
+      `)
       .eq('pelicula_id', movie.value.id)
 
     if (reservasError) throw reservasError
 
-    const reservedSeatIds = new Set((reservasData || []).map(r => r.asiento_id))
-    console.log('🔒 Asientos reservados:', reservedSeatIds)
+    // Crear un Map con la clave "fila-numero" de los asientos reservados
+    // y guardar el ID del asiento y el usuario que lo reservó
+    const reservedSeatsMap = new Map<string, { id: string, userId: string }>()
+    
+    if (reservasData) {
+      reservasData.forEach((reserva: any) => {
+        if (reserva.asiento) {
+          const key = `${reserva.asiento.fila}-${reserva.asiento.numero}`
+          reservedSeatsMap.set(key, { 
+            id: reserva.asiento.id,
+            userId: reserva.usuario_id
+          })
+          
+          // Verificar si el usuario actual ya tiene una reserva
+          if (reserva.usuario_id === currentUser.value?.id) {
+            userHasReservation.value = true
+          }
+        }
+      })
+    }
+    
+    console.log('🔒 Asientos reservados (fila-numero):', Array.from(reservedSeatsMap.keys()))
+    console.log('👤 Usuario actual ID:', currentUser.value?.id)
 
     // 4. Generar asientos dinámicamente
     const rows: SeatRow[] = []
@@ -265,13 +340,17 @@ const loadSeats = async () => {
       const seats: Seat[] = []
 
       for (let j = 1; j <= numColumnas && asientoCounter < capacidad; j++) {
-        const seatId = `${salaData.id}-${fila}-${j}` // ID único generado
+        const seatKey = `${fila}-${j}`
+        const reservation = reservedSeatsMap.get(seatKey)
+        const isReserved = !!reservation
+        const isMyReservation = isReserved && reservation.userId === currentUser.value?.id
         
         seats.push({
-          id: seatId,
+          id: reservation?.id || `${salaData.id}-${fila}-${j}`, // Usar ID real si existe, sino generar uno
           number: j,
           row: fila,
-          status: reservedSeatIds.has(seatId) ? 'reserved' : 'available'
+          status: isMyReservation ? 'my-reservation' : (isReserved ? 'reserved' : 'available'),
+          reservedBy: reservation?.userId
         })
         asientoCounter++
       }
@@ -315,6 +394,9 @@ const getSeatClass = (seat: Seat) => {
   if (selectedSeats.value.some(s => s.id === seat.id)) {
     return 'bg-cyan-500 text-white'
   }
+  if (seat.status === 'my-reservation') {
+    return 'bg-green-600 text-white cursor-default'
+  }
   if (seat.status === 'reserved') {
     return 'bg-gray-600 text-gray-800 cursor-not-allowed'
   }
@@ -322,7 +404,13 @@ const getSeatClass = (seat: Seat) => {
 }
 
 const toggleSeat = (seat: Seat) => {
-  if (seat.status === 'reserved') return
+  if (seat.status === 'reserved' || seat.status === 'my-reservation') return
+  
+  // Si el usuario ya tiene una reserva, no puede seleccionar otro asiento
+  if (userHasReservation.value) {
+    displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
+    return
+  }
   
   const index = selectedSeats.value.findIndex(s => s.id === seat.id)
   
@@ -343,6 +431,23 @@ const confirmReservation = async () => {
 
   try {
     loading.value = true
+
+    // 0. Verificar si el usuario ya tiene una reserva para esta película
+    const { data: reservaUsuario, error: reservaUsuarioError } = await supabase
+      .from('reserva')
+      .select('id')
+      .eq('usuario_id', currentUser.value?.id)
+      .eq('pelicula_id', movie.value.id)
+      .single()
+
+    if (reservaUsuarioError && reservaUsuarioError.code !== 'PGRST116') {
+      throw reservaUsuarioError
+    }
+
+    if (reservaUsuario) {
+      displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
+      return
+    }
 
     // 1. Verificar si el asiento existe en la tabla asiento
     let { data: asientoExistente, error: asientoCheckError } = await supabase
@@ -392,7 +497,7 @@ const confirmReservation = async () => {
     }
 
     if (reservaExistente) {
-      alert('Este asiento ya ha sido reservado. Por favor, selecciona otro.')
+      displayToast('Asiento Ocupado', 'Este asiento ya ha sido reservado por otro usuario. Por favor, selecciona otro.', 'warning')
       await loadSeats() // Recargar asientos
       return
     }
@@ -408,7 +513,15 @@ const confirmReservation = async () => {
       .select('id')
       .single()
 
-    if (insertError) throw insertError
+    if (insertError) {
+      // Manejar error de duplicado
+      if (insertError.code === '23505') {
+        displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
+        return
+      }
+      throw insertError
+    }
+    
     if (!nuevaReserva) throw new Error('No se pudo crear la reserva')
 
     // 5. Obtener el nombre de la sala
@@ -431,12 +544,27 @@ const confirmReservation = async () => {
       userEmail: currentUser.value?.correo_institucional || ''
     }
 
-    // 7. Mostrar el modal del ticket
+    // 7. Limpiar selección y recargar asientos para mostrar el asiento como ocupado
+    selectedSeats.value = []
+    
+    // 8. Mostrar el modal del ticket
     showTicketModal.value = true
+    
+    // 9. Recargar asientos en segundo plano para reflejar la nueva reserva
+    // (sin bloquear el modal del ticket)
+    loadSeats().catch(err => console.error('Error al recargar asientos:', err))
 
   } catch (err: any) {
     console.error('Error al crear reserva:', err)
-    alert('Error al crear la reserva. Por favor, intenta de nuevo.')
+    
+    // Mensajes de error más específicos
+    if (err.code === '23505') {
+      displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
+    } else if (err.message) {
+      displayToast('Error', err.message, 'error')
+    } else {
+      displayToast('Error', 'No se pudo crear la reserva. Por favor, intenta de nuevo.', 'error')
+    }
   } finally {
     loading.value = false
   }
