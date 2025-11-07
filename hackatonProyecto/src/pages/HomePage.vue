@@ -162,8 +162,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Movie, { type Movie as MovieType } from '../components/Movie.vue'
+
+const router = useRouter()
 
 
 const tabs = [
@@ -258,10 +261,11 @@ const filteredMovies = computed(() => {
 
 
 const handleViewDetails = (movie: MovieType) => {
-  console.log('Ver detalles de:', movie.nombre)
-  console.log('Sala ID:', movie.sala_id)
-  console.log('Fecha proyección:', movie.fecha_hora_proyeccion)
-
+  const movieData = encodeURIComponent(JSON.stringify(movie))
+  router.push({
+    name: 'movieDetails',
+    params: { movie: movieData }
+  })
 }
 </script>
 
