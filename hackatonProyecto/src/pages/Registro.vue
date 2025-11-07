@@ -1,5 +1,14 @@
 <template>
   <div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Toast Notification -->
+    <Toast
+      :show="showToast"
+      :message="toastMessage"
+      :title="toastTitle"
+      :type="toastType"
+      @close="showToast = false"
+    />
+
     <div class="absolute inset-0 z-0">
       <img 
         src="../assets/GenteCine2.jpg" 
@@ -328,6 +337,7 @@
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from '../composables/useAuth'
+import Toast from '../components/Toast.vue'
 
 
 const router = useRouter();
@@ -351,6 +361,20 @@ const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const isLoading = ref(false);
 const registerError = ref('');
+
+// Toast notification state
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastTitle = ref('')
+const toastType = ref<'success' | 'error' | 'warning' | 'info'>('info')
+
+// Función para mostrar notificaciones toast
+const displayToast = (title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+  toastTitle.value = title
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+}
 
 const validateFullName = (): boolean => {
   if (!formData.fullName.trim()) {
@@ -432,8 +456,17 @@ const handleSubmit = async () => {
     
     await register(formData.email, formData.password, formData.fullName, 'estudiante')
     
-    alert('Registro exitoso! Por favor revisa tu correo para confirmar tu cuenta.')
-    router.push('/login')
+    // Mostrar notificación de éxito
+    displayToast(
+      'Registro Exitoso',
+      'Por favor revisa tu correo electrónico para confirmar tu cuenta antes de iniciar sesión.',
+      'success'
+    )
+    
+    // Esperar 2 segundos antes de redirigir para que el usuario vea el toast
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
   } catch (error: any) {
     console.error('Error completo al registrarse:', error)
     console.error('Mensaje de error:', error?.message)
