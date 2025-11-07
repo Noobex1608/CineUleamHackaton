@@ -96,16 +96,19 @@
       </div>
     </transition>
 
-    <button
-      @click="isOpen = !isOpen"
-      class="w-60 h-60 transition-all duration-300 hover:scale-105"
-    >
-      <img 
-        src="../assets/Gentleman.png" 
-        alt="Chatbot Cultural" 
-        class="w-full h-full object-contain drop-shadow-2xl"
-      />
-    </button>
+    <transition name="logo">
+      <button
+        v-if="!isOpen"
+        @click="isOpen = true"
+        class="absolute bottom-0 right-0 w-40 h-40 transition-all duration-300 hover:scale-105"
+      >
+        <img 
+          src="../assets/Gentleman.png" 
+          alt="Chatbot Cultural" 
+          class="w-full h-full object-contain drop-shadow-2xl"
+        />
+      </button>
+    </transition>
   </div>
 </template>
 
@@ -256,6 +259,17 @@ onMounted(() => {
 .chat-leave-to {
   opacity: 0;
   transform: translateY(20px) scale(0.95);
+}
+
+.logo-enter-active,
+.logo-leave-active {
+  transition: all 0.3s ease;
+}
+
+.logo-enter-from,
+.logo-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
 @keyframes bounce {
