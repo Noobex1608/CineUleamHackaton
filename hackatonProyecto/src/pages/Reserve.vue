@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white py-8 px-4">
+  <div class="min-h-screen bg-white py-4 sm:py-8 px-3 sm:px-4">
     <!-- Toast Notification -->
     <Toast
       :show="showToast"
@@ -11,52 +11,52 @@
     
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-8">
+      <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-8">
         <button @click="goBack" class="text-gray-800 hover:text-[#C1272D] transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 class="text-2xl font-bold text-gray-800">Selecciona tus asientos</h1>
+        <h1 class="text-lg sm:text-2xl font-bold text-gray-800">Selecciona tus asientos</h1>
       </div>
 
       <!-- Información de la película -->
-      <div v-if="movie" class="bg-gray-50 rounded-lg p-4 mb-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
-        <div class="flex items-center gap-4 text-sm text-gray-600">
-          <p>{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
-          <p v-if="movie.sala?.nombre" class="bg-[#C1272D] text-white px-2 py-1 rounded text-xs font-medium">
+      <div v-if="movie" class="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+        <h2 class="text-base sm:text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+          <p class="wrap-break-word">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+          <p v-if="movie.sala?.nombre" class="bg-[#C1272D] text-white px-2 py-1 rounded text-xs font-medium w-fit">
             {{ movie.sala.nombre }}
           </p>
         </div>
       </div>
       
       <!-- Mensaje de ya tiene reserva -->
-      <div v-if="userHasReservation && !loading" class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-6 mb-6 shadow-md">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-4 flex-1">
+      <div v-if="userHasReservation && !loading" class="bg-linear-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-3 sm:p-6 mb-4 sm:mb-6 shadow-md">
+        <div class="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+          <div class="flex items-start gap-3 sm:gap-4 flex-1 w-full">
             <!-- Icono de check en círculo -->
-            <div class="shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             
             <!-- Contenido -->
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-2">
-                <h3 class="text-lg font-bold text-green-900">Reserva Confirmada</h3>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="text-base sm:text-lg font-bold text-green-900">Reserva Confirmada</h3>
+                <span class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   Activa
                 </span>
               </div>
-              <p class="text-sm text-green-800 leading-relaxed mb-3">
+              <p class="text-xs sm:text-sm text-green-800 leading-relaxed mb-2 sm:mb-3">
                 Tu asiento está reservado y marcado en verde en el mapa. Solo puedes tener una reserva por película.
               </p>
               
               <!-- Información adicional -->
-              <div class="flex items-center gap-2 text-xs text-green-700">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-start gap-2 text-xs text-green-700">
+                <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Recuerda guardar tu ticket de confirmación</span>
@@ -68,15 +68,14 @@
           <button
             @click="handleDeleteReservation"
             :disabled="deletingReservation"
-            class="shrink-0 group relative px-4 py-2.5 bg-white hover:bg-red-50 border-2 border-red-200 hover:border-red-400 disabled:border-red-100 disabled:bg-gray-50 text-red-600 hover:text-red-700 disabled:text-red-300 text-sm font-semibold rounded-lg transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
+            class="w-full sm:w-auto shrink-0 group relative px-3 sm:px-4 py-2 sm:py-2.5 bg-white hover:bg-red-50 border-2 border-red-200 hover:border-red-400 disabled:border-red-100 disabled:bg-gray-50 text-red-600 hover:text-red-700 disabled:text-red-300 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             title="Cancelar reserva"
           >
-            <svg v-if="!deletingReservation" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg v-if="!deletingReservation" class="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            <div v-else class="w-5 h-5 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
-            <span class="hidden sm:inline">{{ deletingReservation ? 'Cancelando...' : 'Cancelar Reserva' }}</span>
-            <span class="sm:hidden">{{ deletingReservation ? '...' : 'Cancelar' }}</span>
+            <div v-else class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+            <span>{{ deletingReservation ? 'Cancelando...' : 'Cancelar Reserva' }}</span>
           </button>
         </div>
       </div>
@@ -95,43 +94,44 @@
       </div>
 
       <!-- Seats Content -->
+      <!-- Seats Content -->
       <div v-else>
         <!-- Progress bars -->
-        <div class="flex gap-4 mb-8">
-          <div class="flex-1 bg-[#C1272D] h-2 rounded"></div>
-          <div class="flex-1 bg-gray-300 h-2 rounded"></div>
+        <div class="flex gap-3 sm:gap-4 mb-4 sm:mb-8">
+          <div class="flex-1 bg-[#C1272D] h-1.5 sm:h-2 rounded"></div>
+          <div class="flex-1 bg-gray-300 h-1.5 sm:h-2 rounded"></div>
         </div>
 
         <!-- Seat selection area -->
-        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
+        <div class="bg-white border border-gray-200 rounded-lg p-3 sm:p-6 mb-4 sm:mb-8 shadow-sm">
           <!-- Counter and Legend -->
-          <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
-            <div class="text-lg font-semibold text-gray-800">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
+            <div class="text-base sm:text-lg font-semibold text-gray-800">
               <span class="text-[#C1272D]">{{ selectedSeats.length }}</span> / {{ maxSeats }}
             </div>
-            <div class="flex items-center gap-6 text-sm flex-wrap">
+            <div class="grid grid-cols-2 sm:flex sm:items-center gap-x-4 gap-y-2 sm:gap-6 text-xs sm:text-sm w-full sm:w-auto">
               <div class="flex items-center gap-2">
-                <div class="w-4 h-4 bg-[#C1272D] rounded"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-[#C1272D] rounded shrink-0"></div>
                 <span class="text-gray-700">Reservado</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="w-4 h-4 bg-gray-500 rounded"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-gray-500 rounded shrink-0"></div>
                 <span class="text-gray-700">Disponible</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="w-4 h-4 bg-cyan-500 rounded"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-cyan-500 rounded shrink-0"></div>
                 <span class="text-gray-700">Seleccionado</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="w-4 h-4 bg-green-600 rounded"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded shrink-0"></div>
                 <span class="text-gray-700">Mi Reserva</span>
               </div>
             </div>
           </div>
 
           <!-- Screen -->
-          <div class="mb-8">
-            <div class="w-full max-w-3xl mx-auto mb-12">
+          <div class="mb-6 sm:mb-8">
+            <div class="w-full max-w-3xl mx-auto mb-8 sm:mb-12">
               <svg viewBox="0 0 800 60" class="w-full" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -142,24 +142,24 @@
                 </defs>
                 <path d="M 50 40 Q 400 10, 750 40" stroke="url(#screenGradient)" stroke-width="3" fill="none"/>
               </svg>
-              <p class="text-center text-sm text-gray-500 mt-2">Pantalla</p>
+              <p class="text-center text-xs sm:text-sm text-gray-500 mt-2">Pantalla</p>
             </div>
 
             <!-- Seats Grid -->
-            <div class="max-w-4xl mx-auto">
-              <div class="flex justify-center gap-8">
+            <div class="max-w-4xl mx-auto overflow-x-auto px-3 sm:px-0">
+              <div class="flex justify-center gap-4 sm:gap-8 min-w-max px-3 sm:px-0">
                 <!-- Left Section -->
-                <div class="space-y-3">
-                  <div v-for="row in seatRows" :key="row.label" class="flex items-center gap-2">
-                    <span class="text-xs text-gray-500 w-6 text-right font-medium">{{ row.label }}</span>
-                    <div class="flex gap-2">
+                <div class="space-y-2 sm:space-y-3">
+                  <div v-for="row in seatRows" :key="row.label" class="flex items-center gap-1.5 sm:gap-2">
+                    <span class="text-xs text-gray-500 w-4 sm:w-6 text-right font-medium">{{ row.label }}</span>
+                    <div class="flex gap-1.5 sm:gap-2">
                       <button
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
                         :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
-                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {{ seat.number }}
                       </button>
@@ -168,21 +168,21 @@
                 </div>
 
                 <!-- Right Section -->
-                <div v-if="rightSeatRows.length > 0" class="space-y-3 ml-8">
-                  <div v-for="row in rightSeatRows" :key="row.label" class="flex items-center gap-2">
-                    <div class="flex gap-2">
+                <div v-if="rightSeatRows.length > 0" class="space-y-2 sm:space-y-3 ml-4 sm:ml-8">
+                  <div v-for="row in rightSeatRows" :key="row.label" class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="flex gap-1.5 sm:gap-2">
                       <button
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
                         :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
-                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {{ seat.number }}
                       </button>
                     </div>
-                    <span class="text-xs text-gray-500 w-6 font-medium">{{ row.label }}</span>
+                    <span class="text-xs text-gray-500 w-4 sm:w-6 font-medium">{{ row.label }}</span>
                   </div>
                 </div>
               </div>
@@ -191,11 +191,11 @@
         </div>
 
         <!-- Confirm Button -->
-        <div class="flex justify-center">
+        <div class="flex justify-center px-3 sm:px-0">
           <button
             @click="confirmReservation"
             :disabled="selectedSeats.length === 0 || loading"
-            class="bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-12 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
+            class="w-full sm:w-auto bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-8 sm:px-12 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 text-sm sm:text-base"
           >
             {{ loading ? 'Procesando...' : 'Continuar con la reserva' }}
           </button>
@@ -213,7 +213,7 @@
     <!-- Delete Confirmation Modal -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showDeleteConfirm" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div v-if="showDeleteConfirm" class="fixed inset-0 z-100 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
             <!-- Background overlay with blur -->
             <Transition
@@ -236,11 +236,11 @@
               leave-from-class="opacity-100 translate-y-0 sm:scale-100"
               leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <div v-if="showDeleteConfirm" class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-[101]">
+              <div v-if="showDeleteConfirm" class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-101">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div class="sm:flex sm:items-start">
                     <!-- Icono de advertencia -->
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-14 sm:w-14">
+                    <div class="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-14 sm:w-14">
                       <svg class="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
@@ -258,7 +258,7 @@
                         
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
                           <div class="flex">
-                            <div class="flex-shrink-0">
+                            <div class="shrink-0">
                               <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
