@@ -93,6 +93,15 @@
           </div>
         </div>
 
+        <div v-if="loginError" class="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p class="text-sm text-red-600 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            {{ loginError }}
+          </p>
+        </div>
+
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <input
@@ -146,12 +155,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
+const { login } = useAuth()
 
 const email = ref('')
 const password = ref('')
 const emailError = ref('')
+const loginError = ref('')
 const showPassword = ref(false)
 const rememberMe = ref(false)
 const isLoading = ref(false)
@@ -176,28 +188,26 @@ const validateEmail = () => {
 }
 
 const handleSubmit = async () => {
-  if (!validateEmail()) {
-    return
-  }
-  
-  if (!password.value) {
+  if (!validateEmail() || !password.value) {
     return
   }
   
   isLoading.value = true
+  loginError.value = ''
   
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    console.log('Login:', {
-      email: email.value,
-      password: password.value,
-      rememberMe: rememberMe.value
-    })
-    
+    await login(email.value, password.value)
     router.push('/')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al iniciar sesión:', error)
+    
+    if (error.message === 'Invalid login credentials') {
+      loginError.value = 'Correo o contraseña incorrectos'
+    } else if (error.message === 'Email not confirmed') {
+      loginError.value = 'Por favor confirma tu correo electrónico'
+    } else {
+      loginError.value = 'Error al iniciar sesión. Intenta nuevamente.'
+    }
   } finally {
     isLoading.value = false
   }

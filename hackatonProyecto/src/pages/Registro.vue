@@ -282,12 +282,29 @@
           </p>
         </div>
 
+        <div v-if="registerError" class="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p class="text-sm text-red-600 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            {{ registerError }}
+          </p>
+        </div>
+
         <div>
           <button
             type="submit"
-            class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent font-semibold rounded-lg text-white bg-[#C1272D] hover:bg-[#8B1F23] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C1272D] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            :disabled="isLoading"
+            class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent font-semibold rounded-lg text-white bg-[#C1272D] hover:bg-[#8B1F23] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C1272D] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
           >
-            Registrarse
+            <span v-if="!isLoading" class="text-white font-medium">Registrarse</span>
+            <span v-else class="flex items-center gap-2 text-white">
+              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creando cuenta...
+            </span>
           </button>
         </div>
 
@@ -310,8 +327,11 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuth } from '../composables/useAuth'
+
 
 const router = useRouter();
+const { register } = useAuth()
 
 const formData = reactive({
   fullName: "",
@@ -329,6 +349,8 @@ const errors = reactive({
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
+const isLoading = ref(false);
+const registerError = ref('');
 
 const validateFullName = (): boolean => {
   if (!formData.fullName.trim()) {
@@ -384,22 +406,65 @@ const validateConfirmPassword = (): boolean => {
   return true;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   const isFullNameValid = validateFullName();
   const isEmailValid = validateEmail();
   const isPasswordValid = validatePassword();
   const isConfirmPasswordValid = validateConfirmPassword();
 
   if (
-    isFullNameValid &&
-    isEmailValid &&
-    isPasswordValid &&
-    isConfirmPasswordValid
+    !isFullNameValid ||
+    !isEmailValid ||
+    !isPasswordValid ||
+    !isConfirmPasswordValid
   ) {
-    console.log("Formulario válido:", formData);
-    router.push("/login");
+    return;
+  }
+
+  isLoading.value = true;
+  registerError.value = '';
+
+  try {
+    console.log('Intentando registrar usuario:', {
+      email: formData.email,
+      nombre: formData.fullName
+    })
+    
+    await register(formData.email, formData.password, formData.fullName, 'estudiante')
+    
+    alert('Registro exitoso! Por favor revisa tu correo para confirmar tu cuenta.')
+    router.push('/login')
+  } catch (error: any) {
+    console.error('Error completo al registrarse:', error)
+    console.error('Mensaje de error:', error?.message)
+    console.error('Stack:', error?.stack)
+    
+    if (error.message?.includes('User already registered') || error.message?.includes('already registered')) {
+      registerError.value = 'Este correo ya está registrado'
+    } else if (error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
+      registerError.value = 'Este correo ya existe en el sistema'
+    } else if (error.message?.includes('Password')) {
+      registerError.value = 'La contraseña debe tener al menos 6 caracteres'
+    } else {
+      registerError.value = `Error al crear la cuenta: ${error.message || 'Intenta nuevamente.'}`
+    }
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
