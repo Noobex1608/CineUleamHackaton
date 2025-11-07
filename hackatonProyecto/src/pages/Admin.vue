@@ -245,7 +245,19 @@
 
           <!-- Lista de Películas -->
           <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul class="divide-y divide-gray-200">
+            <!-- Loading state -->
+            <div v-if="isLoadingPeliculas" class="text-center py-12">
+              <div class="inline-flex items-center px-4 py-2 text-sm text-gray-600">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Cargando películas...
+              </div>
+            </div>
+            
+            <!-- Lista de películas -->
+            <ul v-else-if="peliculas.length > 0" class="divide-y divide-gray-200">
               <li v-for="movie in peliculas" :key="movie.id" class="px-6 py-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
@@ -278,6 +290,21 @@
                 </div>
               </li>
             </ul>
+            
+            <!-- Estado vacío -->
+            <div v-else class="text-center py-12">
+              <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1h-1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 3v1h6V3H9z"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">No hay películas</h3>
+              <p class="text-gray-500 mb-4">Agrega tu primera película para comenzar</p>
+              <button 
+                @click="showCreateForm = true"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Crear Primera Película
+              </button>
+            </div>
           </div>
         </div>
 
@@ -486,6 +513,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed, watch } from 'vue'
+import { supabase } from '../lib/supabase'
 import type { Pelicula } from '../interfaces/Pelicula'
 import type { Usuario } from '../interfaces/Usuario'
 import type { Reserva } from '../interfaces/Reserva'
@@ -500,149 +528,23 @@ const editingMovie = ref<Pelicula | null>(null)
 const showCreateSalaForm = ref(false)
 const editingSala = ref<Sala | null>(null)
 
-// Datos simulados (en una app real, estos vendrían de una API)
-const peliculas = ref<Pelicula[]>([
-  {
-    id: '1',
-    nombre: 'Avengers: Endgame',
-    descripcion: 'La batalla final contra Thanos',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Avengers',
-    idioma: 'Español',
-    fecha_hora_proyeccion: '2024-12-01T19:00',
-    sala_id: 'SALA-001'
-  },
-  {
-    id: '2',
-    nombre: 'The Batman',
-    descripcion: 'El nuevo caballero de la noche',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Batman',
-    idioma: 'Inglés',
-    fecha_hora_proyeccion: '2024-12-01T21:30',
-    sala_id: 'SALA-002'
-  },
-  {
-    id: '3',
-    nombre: 'Spider-Man: No Way Home',
-    descripcion: 'El multiverso se abre',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Spider-Man',
-    idioma: 'Español',
-    fecha_hora_proyeccion: '2024-12-02T18:00',
-    sala_id: 'SALA-001'
-  },
-  {
-    id: '4',
-    nombre: 'Dune',
-    descripcion: 'Una épica aventura espacial',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Dune',
-    idioma: 'Inglés',
-    fecha_hora_proyeccion: '2024-12-02T20:00',
-    sala_id: 'SALA-003'
-  },
-  {
-    id: '5',
-    nombre: 'Fast & Furious 9',
-    descripcion: 'La familia está de vuelta',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Fast-9',
-    idioma: 'Español',
-    fecha_hora_proyeccion: '2024-12-03T19:30',
-    sala_id: 'SALA-002'
-  },
-  {
-    id: '6',
-    nombre: 'Top Gun: Maverick',
-    descripcion: 'El regreso de un héroe',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Top-Gun',
-    idioma: 'Inglés',
-    fecha_hora_proyeccion: '2024-12-03T21:00',
-    sala_id: 'SALA-001'
-  },
-  {
-    id: '7',
-    nombre: 'Coco',
-    descripcion: 'Una historia sobre la familia',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Coco',
-    idioma: 'Español',
-    fecha_hora_proyeccion: '2024-12-04T16:00',
-    sala_id: 'SALA-002'
-  },
-  {
-    id: '8',
-    nombre: 'The Matrix Resurrections',
-    descripcion: 'Neo regresa a la Matrix',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Matrix',
-    idioma: 'Inglés',
-    fecha_hora_proyeccion: '2024-12-04T22:00',
-    sala_id: 'SALA-003'
-  },
-  {
-    id: '9',
-    nombre: 'Encanto',
-    descripcion: 'La magia de la familia Madrigal',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Encanto',
-    idioma: 'Español',
-    fecha_hora_proyeccion: '2024-12-05T17:00',
-    sala_id: 'SALA-001'
-  },
-  {
-    id: '10',
-    nombre: 'Amélie',
-    descripcion: 'Una historia francesa encantadora',
-    url_poster: 'https://via.placeholder.com/300x450/333/fff?text=Amelie',
-    idioma: 'Francés',
-    fecha_hora_proyeccion: '2024-12-05T20:30',
-    sala_id: 'SALA-002'
-  }
-])
+// Variables reactivas para datos de Supabase
+const peliculas = ref<Pelicula[]>([])
+const usuarios = ref<Usuario[]>([])
+const reservas = ref<Reserva[]>([])
+const salas = ref<Sala[]>([])
 
-const usuarios = ref<Usuario[]>([
-  { id: '1', nombre: 'Juan Pérez', correo_institucional: 'juan.perez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '2', nombre: 'María García', correo_institucional: 'maria.garcia@live.uleam.edu.ec', tipo: 'admin' },
-  { id: '3', nombre: 'Carlos López', correo_institucional: 'carlos.lopez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '4', nombre: 'Ana Rodríguez', correo_institucional: 'ana.rodriguez@live.uleam.edu.ec', tipo: 'admin' },
-  { id: '5', nombre: 'Luis Martínez', correo_institucional: 'luis.martinez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '6', nombre: 'Sofia Hernández', correo_institucional: 'sofia.hernandez@live.uleam.edu.ec', tipo: 'estudiante' },
-  { id: '7', nombre: 'Diego Torres', correo_institucional: 'diego.torres@live.uleam.edu.ec', tipo: 'admin' },
-  { id: '8', nombre: 'Isabella Cruz', correo_institucional: 'isabella.cruz@live.uleam.edu.ec', tipo: 'estudiante' }
-])
-
-const reservas = ref<Reserva[]>([
-  // Reservas para películas en Español
-  { id: '1', usuario_id: '1', pelicula_id: '1', asiento_id: 'A1', fecha_creacion: '2024-11-01T10:00:00Z' },
-  { id: '2', usuario_id: '2', pelicula_id: '3', asiento_id: 'B5', fecha_creacion: '2024-11-02T14:30:00Z' },
-  { id: '3', usuario_id: '3', pelicula_id: '5', asiento_id: 'C3', fecha_creacion: '2024-11-03T16:45:00Z' },
-  { id: '4', usuario_id: '4', pelicula_id: '7', asiento_id: 'D7', fecha_creacion: '2024-11-04T12:20:00Z' },
-  { id: '5', usuario_id: '5', pelicula_id: '9', asiento_id: 'E2', fecha_creacion: '2024-11-05T09:15:00Z' },
-  { id: '6', usuario_id: '6', pelicula_id: '1', asiento_id: 'F4', fecha_creacion: '2024-11-05T11:30:00Z' },
-  { id: '7', usuario_id: '7', pelicula_id: '3', asiento_id: 'G6', fecha_creacion: '2024-11-06T13:45:00Z' },
-  { id: '8', usuario_id: '8', pelicula_id: '5', asiento_id: 'H1', fecha_creacion: '2024-11-06T15:20:00Z' },
-  
-  // Reservas para películas en Inglés
-  { id: '9', usuario_id: '1', pelicula_id: '2', asiento_id: 'A3', fecha_creacion: '2024-11-01T18:00:00Z' },
-  { id: '10', usuario_id: '2', pelicula_id: '4', asiento_id: 'B7', fecha_creacion: '2024-11-02T20:15:00Z' },
-  { id: '11', usuario_id: '3', pelicula_id: '6', asiento_id: 'C5', fecha_creacion: '2024-11-03T19:30:00Z' },
-  { id: '12', usuario_id: '4', pelicula_id: '8', asiento_id: 'D2', fecha_creacion: '2024-11-04T21:45:00Z' },
-  { id: '13', usuario_id: '5', pelicula_id: '2', asiento_id: 'E8', fecha_creacion: '2024-11-05T17:10:00Z' },
-  { id: '14', usuario_id: '6', pelicula_id: '4', asiento_id: 'F3', fecha_creacion: '2024-11-05T22:00:00Z' },
-  
-  // Reservas para películas en Francés
-  { id: '15', usuario_id: '7', pelicula_id: '10', asiento_id: 'G8', fecha_creacion: '2024-11-06T19:45:00Z' },
-  { id: '16', usuario_id: '8', pelicula_id: '10', asiento_id: 'H5', fecha_creacion: '2024-11-06T20:30:00Z' },
-  { id: '17', usuario_id: '1', pelicula_id: '10', asiento_id: 'A6', fecha_creacion: '2024-11-07T16:15:00Z' }
-])
-
-// Datos de salas
-const salas = ref<Sala[]>([
-  { id: 'SALA-001', nombre: 'Sala Principal', capacidad: 120 },
-  { id: 'SALA-002', nombre: 'Sala VIP', capacidad: 50 },
-  { id: 'SALA-003', nombre: 'Sala Premium', capacidad: 80 }
-])
+// Loading states
+const isLoadingPeliculas = ref(false)
+const isLoadingSalas = ref(false)
+const isLoadingStats = ref(false)
 
 // Estadísticas calculadas
-const totalPeliculas = ref(peliculas.value.length)
-const totalUsuarios = ref(usuarios.value.length)
-const totalReservas = ref(reservas.value.length)
-const totalSalas = ref(salas.value.length)
-const hasReservations = ref(reservas.value.length > 0)
+const totalPeliculas = computed(() => peliculas.value.length)
+const totalUsuarios = computed(() => usuarios.value.length)
+const totalReservas = computed(() => reservas.value.length)
+const totalSalas = computed(() => salas.value.length)
+const hasReservations = computed(() => reservas.value.length > 0)
 
 // Formulario de película
 const movieForm = ref<Partial<Pelicula>>({
@@ -661,6 +563,76 @@ const salaForm = ref<Partial<Sala>>({
 })
 
 const chartCanvas = ref<HTMLCanvasElement>()
+
+// ===== FUNCIONES DE SUPABASE =====
+
+// Cargar películas desde Supabase
+const loadPeliculas = async () => {
+  try {
+    isLoadingPeliculas.value = true
+    const { data, error } = await supabase
+      .from('pelicula')
+      .select('*')
+      .order('fecha_hora_proyeccion', { ascending: true })
+
+    if (error) throw error
+    
+    peliculas.value = data || []
+  } catch (error) {
+    console.error('Error al cargar películas:', error)
+    alert('Error al cargar las películas')
+  } finally {
+    isLoadingPeliculas.value = false
+  }
+}
+
+// Cargar salas desde Supabase
+const loadSalas = async () => {
+  try {
+    isLoadingSalas.value = true
+    const { data, error } = await supabase
+      .from('sala')
+      .select('*')
+      .order('nombre', { ascending: true })
+
+    if (error) throw error
+    
+    salas.value = data || []
+  } catch (error) {
+    console.error('Error al cargar salas:', error)
+    alert('Error al cargar las salas')
+  } finally {
+    isLoadingSalas.value = false
+  }
+}
+
+// Cargar estadísticas desde Supabase
+const loadStats = async () => {
+  try {
+    isLoadingStats.value = true
+    
+    // Cargar usuarios
+    const { data: usuariosData, error: usuariosError } = await supabase
+      .from('usuario')
+      .select('*')
+    
+    if (usuariosError) throw usuariosError
+    usuarios.value = usuariosData || []
+
+    // Cargar reservas
+    const { data: reservasData, error: reservasError } = await supabase
+      .from('reserva')
+      .select('*')
+    
+    if (reservasError) throw reservasError
+    reservas.value = reservasData || []
+
+  } catch (error) {
+    console.error('Error al cargar estadísticas:', error)
+  } finally {
+    isLoadingStats.value = false
+  }
+}
 
 // Variables computadas para estadísticas
 const uniqueLanguages = computed(() => {
@@ -725,30 +697,72 @@ const cancelForm = () => {
   }
 }
 
-const submitMovie = () => {
-  if (editingMovie.value) {
-    // Actualizar película existente
-    const index = peliculas.value.findIndex(p => p.id === editingMovie.value!.id)
-    if (index !== -1) {
-      peliculas.value[index] = { ...movieForm.value as Pelicula }
+const submitMovie = async () => {
+  try {
+    if (editingMovie.value) {
+      // Actualizar película existente
+      const { error } = await supabase
+        .from('pelicula')
+        .update({
+          nombre: movieForm.value.nombre,
+          descripcion: movieForm.value.descripcion,
+          url_poster: movieForm.value.url_poster,
+          idioma: movieForm.value.idioma,
+          fecha_hora_proyeccion: movieForm.value.fecha_hora_proyeccion,
+          sala_id: movieForm.value.sala_id
+        })
+        .eq('id', editingMovie.value.id)
+
+      if (error) throw error
+      
+      alert('Película actualizada exitosamente')
+    } else {
+      // Crear nueva película
+      const { error } = await supabase
+        .from('pelicula')
+        .insert({
+          nombre: movieForm.value.nombre,
+          descripcion: movieForm.value.descripcion,
+          url_poster: movieForm.value.url_poster,
+          idioma: movieForm.value.idioma,
+          fecha_hora_proyeccion: movieForm.value.fecha_hora_proyeccion,
+          sala_id: movieForm.value.sala_id
+        })
+
+      if (error) throw error
+      
+      alert('Película creada exitosamente')
     }
-  } else {
-    // Crear nueva película
-    const newMovie: Pelicula = {
-      id: Date.now().toString(),
-      ...movieForm.value as Omit<Pelicula, 'id'>
-    }
-    peliculas.value.push(newMovie)
+    
+    // Recargar las películas
+    await loadPeliculas()
+    cancelForm()
+    
+  } catch (error: any) {
+    console.error('Error al guardar película:', error)
+    console.error('Detalles del error:', JSON.stringify(error, null, 2))
+    alert(`Error al guardar la película: ${error.message || 'Error desconocido'}`)
   }
-  
-  totalPeliculas.value = peliculas.value.length
-  cancelForm()
 }
 
-const deleteMovie = (id: string) => {
+const deleteMovie = async (id: string) => {
   if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
-    peliculas.value = peliculas.value.filter(p => p.id !== id)
-    totalPeliculas.value = peliculas.value.length
+    try {
+      const { error } = await supabase
+        .from('pelicula')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      
+      alert('Película eliminada exitosamente')
+      // Recargar las películas
+      await loadPeliculas()
+      
+    } catch (error) {
+      console.error('Error al eliminar película:', error)
+      alert('Error al eliminar la película')
+    }
   }
 }
 
@@ -768,37 +782,77 @@ const cancelSalaForm = () => {
   }
 }
 
-const submitSala = () => {
-  if (editingSala.value) {
-    // Actualizar sala existente
-    const index = salas.value.findIndex(s => s.id === editingSala.value!.id)
-    if (index !== -1) {
-      salas.value[index] = { ...salaForm.value as Sala }
-    }
-  } else {
-    // Crear nueva sala
-    const newSala: Sala = {
-      id: `SALA-${String(salas.value.length + 1).padStart(3, '0')}`,
-      ...salaForm.value as Omit<Sala, 'id'>
-    }
-    salas.value.push(newSala)
-  }
-  
-  totalSalas.value = salas.value.length
-  cancelSalaForm()
-}
+const submitSala = async () => {
+  try {
+    if (editingSala.value) {
+      // Actualizar sala existente
+      const { error } = await supabase
+        .from('sala')
+        .update({
+          nombre: salaForm.value.nombre,
+          capacidad: salaForm.value.capacidad
+        })
+        .eq('id', editingSala.value.id)
 
-const deleteSala = (id: string) => {
-  if (confirm('¿Estás seguro de que quieres eliminar esta sala?')) {
-    // Verificar si hay películas usando esta sala
-    const peliculasEnSala = peliculas.value.filter(p => p.sala_id === id)
-    if (peliculasEnSala.length > 0) {
-      alert(`No se puede eliminar la sala porque tiene ${peliculasEnSala.length} película(s) programada(s).`)
-      return
+      if (error) throw error
+      
+      alert('Sala actualizada exitosamente')
+    } else {
+      // Crear nueva sala
+      const { error } = await supabase
+        .from('sala')
+        .insert({
+          nombre: salaForm.value.nombre,
+          capacidad: salaForm.value.capacidad
+        })
+
+      if (error) throw error
+      
+      alert('Sala creada exitosamente')
     }
     
-    salas.value = salas.value.filter(s => s.id !== id)
-    totalSalas.value = salas.value.length
+    // Recargar las salas
+    await loadSalas()
+    cancelSalaForm()
+    
+  } catch (error: any) {
+    console.error('Error al guardar sala:', error)
+    console.error('Detalles del error:', JSON.stringify(error, null, 2))
+    alert(`Error al guardar la sala: ${error.message || 'Error desconocido'}`)
+  }
+}
+
+const deleteSala = async (id: string) => {
+  if (confirm('¿Estás seguro de que quieres eliminar esta sala?')) {
+    try {
+      // Verificar si hay películas usando esta sala
+      const { data: peliculasEnSala, error: checkError } = await supabase
+        .from('pelicula')
+        .select('id')
+        .eq('sala_id', id)
+
+      if (checkError) throw checkError
+
+      if (peliculasEnSala && peliculasEnSala.length > 0) {
+        alert(`No se puede eliminar la sala porque tiene ${peliculasEnSala.length} película(s) programada(s).`)
+        return
+      }
+
+      const { error } = await supabase
+        .from('sala')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      
+      alert('Sala eliminada exitosamente')
+      // Recargar las salas
+      await loadSalas()
+      
+    } catch (error) {
+      console.error('Error al eliminar sala:', error)
+      alert('Error al eliminar la sala')
+    }
   }
 }
 
@@ -928,7 +982,15 @@ const refreshChart = () => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Cargar datos iniciales
+  await Promise.all([
+    loadPeliculas(),
+    loadSalas(),
+    loadStats()
+  ])
+  
+  // Dibujar gráfico si estamos en estadísticas
   nextTick(() => {
     if (activeTab.value === 'estadisticas') {
       drawPieChart()
@@ -937,8 +999,9 @@ onMounted(() => {
 })
 
 // Watch para redibujar el gráfico cuando se cambie al tab de estadísticas
-watch(activeTab, (newTab) => {
+watch(activeTab, async (newTab) => {
   if (newTab === 'estadisticas') {
+    await loadStats()
     nextTick(() => {
       drawPieChart()
     })
