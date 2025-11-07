@@ -11,17 +11,29 @@
     @keydown.space.prevent="$emit('view-details', movie)"
   >
 
-    <div class="relative aspect-2/3 overflow-hidden bg-gray-100">
+    <div class="relative aspect-[2/3] overflow-hidden bg-gray-100">
       <img 
         :src="displayPoster" 
         :alt="`Póster de la película ${movie.nombre}`"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        :class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
+        style="transition: opacity 0.3s ease-in-out;"
         @error="handleImageError"
+        @load="handleImageLoad"
         loading="lazy"
+        crossorigin="anonymous"
       />
       
-
-      <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+      <!-- Indicador de carga -->
+      <div v-if="!imageLoaded && !imageError" class="absolute inset-0 flex items-center justify-center bg-gray-200">
+        <svg class="w-12 h-12 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+      
+      <!-- Overlay de hover (solo se muestra en hover) -->
+      <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none"></div>
       
 
       <div 
@@ -224,6 +236,7 @@ defineEmits<{
 
 
 const imageError = ref(false)
+const imageLoaded = ref(false)
 
 // Imagen placeholder más atractiva con gradiente del color del cine
 const placeholderImage = 'https://placehold.co/300x450/C1272D/ffffff?text=SIN+POSTER'
@@ -239,6 +252,7 @@ const problematicDomains = [
 const displayPoster = computed(() => {
   // Si hubo error de carga, usar placeholder
   if (imageError.value) {
+    console.warn(`⚠️ Película "${props.movie.nombre}" - Error de carga de imagen, usando placeholder`)
     return placeholderImage
   }
   
@@ -258,6 +272,7 @@ const displayPoster = computed(() => {
     return placeholderImage
   }
   
+  console.log(`✅ Usando póster para "${props.movie.nombre}":`, props.movie.url_poster)
   return props.movie.url_poster
 })
 
@@ -271,8 +286,35 @@ const isNewRelease = computed(() => {
 })
 
 
-const handleImageError = () => {
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.error(`❌ Error al cargar imagen para "${props.movie.nombre}":`, {
+    url: props.movie.url_poster,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+    complete: img.complete
+  })
   imageError.value = true
+  imageLoaded.value = false
+}
+
+const handleImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.log(`✅ Imagen cargada exitosamente para "${props.movie.nombre}":`, {
+    url: props.movie.url_poster,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+    currentSrc: img.currentSrc,
+    complete: img.complete
+  })
+  
+  // Verificar si la imagen tiene contenido (no es completamente negra)
+  if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+    console.warn('⚠️ La imagen no tiene dimensiones válidas')
+  }
+  
+  imageLoaded.value = true
+  imageError.value = false
 }
 
 const formatDate = (dateString: string) => {
