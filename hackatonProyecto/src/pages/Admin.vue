@@ -69,6 +69,15 @@
               >
                 Estadísticas
               </button>
+              <button 
+                @click="selectTab('solicitudes')"
+                :class="[
+                  'w-full text-left py-3 px-4 text-sm font-medium transition-colors',
+                  activeTab === 'solicitudes' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                ]"
+              >
+                Solicitudes de Alquiler
+              </button>
             </div>
           </div>
         </div>
@@ -119,6 +128,17 @@
           >
             Estadísticas
           </button>
+          <button 
+            @click="activeTab = 'solicitudes'"
+            :class="[
+              'py-4 px-6 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'solicitudes' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            ]"
+          >
+            Solicitudes
+          </button>
         </div>
       </div>
     </nav>
@@ -165,6 +185,12 @@
           :reservas="reservas"
         />
 
+        <!-- Solicitudes de Alquiler -->
+        <SolicitudAlquilerManagement
+          v-if="activeTab === 'solicitudes'"
+          @show-toast="displayToast"
+        />
+
       </div>
     </main>
   </div>
@@ -180,6 +206,7 @@ import AdminDashboard from '../components/admin/AdminDashboard.vue'
 import MovieManagement from '../components/admin/MovieManagement.vue'
 import SalaManagement from '../components/admin/SalaManagement.vue'
 import AdminStatistics from '../components/admin/AdminStatistics.vue'
+import SolicitudAlquilerManagement from '../components/admin/SolicitudAlquilerManagement.vue'
 import type { Pelicula } from '../interfaces/Pelicula'
 import type { Sala } from '../interfaces/Sala'
 
@@ -234,7 +261,8 @@ const getActiveTabLabel = () => {
     dashboard: 'Dashboard',
     peliculas: 'Gestión de Películas',
     salas: 'Configurar Salas',
-    estadisticas: 'Estadísticas'
+    estadisticas: 'Estadísticas',
+    solicitudes: 'Solicitudes de Alquiler'
   }
   return labels[activeTab.value] || 'Dashboard'
 }

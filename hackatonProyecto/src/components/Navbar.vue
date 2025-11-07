@@ -81,6 +81,20 @@
 
           <!-- Mostrar login/registro si NO está autenticado -->
           <template v-else>
+            <!-- Enlace de Alquiler de Sala solo para usuarios no logueados -->
+            <router-link
+              to="/alquiler-sala"
+              class="text-gray-700 text-xs lg:text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1 lg:gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-1 lg:px-2 py-1"
+              role="menuitem"
+              aria-label="Alquilar salas para eventos"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              <span class="hidden sm:inline">Alquilar Sala</span>
+              <span class="sm:hidden">Alquiler</span>
+            </router-link>
+
             <router-link
               v-if="!isLoginPage"
               to="/login"
@@ -196,6 +210,20 @@
 
         <!-- Mostrar login/registro si NO está autenticado -->
         <template v-else>
+          <!-- Enlace de Alquiler de Sala solo para usuarios no logueados - versión móvil -->
+          <router-link
+            to="/alquiler-sala"
+            @click="toggleMenu"
+            class="flex items-center gap-3 text-gray-700 font-medium hover:text-[#C1272D] transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded px-2"
+            role="menuitem"
+            aria-label="Alquilar salas para eventos"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <span>Alquilar Sala</span>
+          </router-link>
+
           <router-link
             v-if="!isLoginPage"
             to="/login"

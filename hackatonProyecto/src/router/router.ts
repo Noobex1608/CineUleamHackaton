@@ -7,6 +7,7 @@ import MovieDetails from "../pages/MovieDetails.vue";
 import Registro from "../pages/Registro.vue";
 import Reserve from "../pages/Reserve.vue";
 import ResetPassword from "../pages/ResetPassword.vue";
+import AlquilerSala from "../pages/AlquilerSala.vue";
 
 const routes = [
   {
@@ -38,6 +39,11 @@ const routes = [
     path: "/reserve/:movie",
     name: "Reserve",
     component: Reserve,
+  },
+  {
+    path: "/alquiler-sala",
+    name: "alquilerSala",
+    component: AlquilerSala,
   },
   {
     path: "/admin",
