@@ -10,7 +10,7 @@
 
 
     <section 
-      class="relative h-[350px] sm:h-[450px] md:h-[500px] lg:h-[600px] bg-gradient-to-r from-[#C1272D] via-[#A12027] to-[#8B1F23] overflow-hidden"
+      class="relative h-[350px] sm:h-[450px] md:h-[500px] lg:h-[600px] bg-linear-to-r from-[#C1272D] via-[#A12027] to-[#8B1F23] overflow-hidden"
       aria-labelledby="hero-heading"
       role="banner"
     >
@@ -61,7 +61,7 @@
               v-for="tab in tabs" 
               :key="tab.id"
               @click="activeTab = tab.id"
-              class="text-gray-700 font-semibold pb-2 transition-all relative focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded px-2 sm:px-3 py-2 whitespace-nowrap text-sm sm:text-base"
+              class="font-semibold pb-3 transition-all focus:outline-none px-2 sm:px-3 py-2 whitespace-nowrap text-sm sm:text-base border-0"
               :class="activeTab === tab.id ? 'text-[#C1272D]' : 'text-gray-500 hover:text-gray-700'"
               role="tab"
               :aria-selected="activeTab === tab.id"
@@ -69,11 +69,6 @@
               :tabindex="activeTab === tab.id ? 0 : -1"
             >
               {{ tab.label }}
-              <span 
-                v-if="activeTab === tab.id" 
-                class="absolute bottom-0 left-0 right-0 h-1 bg-[#C1272D] rounded-t-full transition-all"
-                aria-hidden="true"
-              ></span>
             </button>
           </div>
           
@@ -376,8 +371,7 @@ const welcomeSubtitle = computed(() => {
 
 const tabs = [
   { id: 'billboard', label: 'Cartelera' },
-  { id: 'now', label: 'Ahora' },
-  { id: 'upcoming', label: 'Próximamente' }
+  { id: 'now', label: 'Ahora' }
 ]
 
 const activeTab = ref('billboard')
@@ -456,6 +450,27 @@ const getLanguageCount = (language: string) => {
 
 const filteredMovies = computed(() => {
   let filtered = movies.value
+
+  // Obtener fecha actual (solo día, sin hora)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Filtrar por tab activo
+  if (activeTab.value === 'now') {
+    // AHORA: Solo películas de hoy
+    filtered = filtered.filter(movie => {
+      const movieDate = new Date(movie.fecha_hora_proyeccion)
+      movieDate.setHours(0, 0, 0, 0)
+      return movieDate.getTime() === today.getTime()
+    })
+  } else if (activeTab.value === 'billboard') {
+    // CARTELERA: Todas las películas de hoy y futuras
+    filtered = filtered.filter(movie => {
+      const movieDate = new Date(movie.fecha_hora_proyeccion)
+      movieDate.setHours(0, 0, 0, 0)
+      return movieDate.getTime() >= today.getTime()
+    })
+  }
 
   // Filtrar por idioma si se ha seleccionado uno
   if (selectedLanguage.value) {
