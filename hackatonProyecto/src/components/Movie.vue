@@ -225,12 +225,40 @@ defineEmits<{
 
 const imageError = ref(false)
 
+// Imagen placeholder más atractiva con gradiente del color del cine
+const placeholderImage = 'https://placehold.co/300x450/C1272D/ffffff?text=SIN+POSTER'
 
-const placeholderImage = 'https://via.placeholder.com/300x450/f3f4f6/9ca3af?text=Sin+Imagen'
-
+// Lista de dominios problemáticos conocidos
+const problematicDomains = [
+  'encrypted-tbn0.gstatic.com',
+  'encrypted-tbn1.gstatic.com',
+  'encrypted-tbn2.gstatic.com',
+  'encrypted-tbn3.gstatic.com'
+]
 
 const displayPoster = computed(() => {
-  return imageError.value ? placeholderImage : props.movie.url_poster || placeholderImage
+  // Si hubo error de carga, usar placeholder
+  if (imageError.value) {
+    return placeholderImage
+  }
+  
+  // Si no hay url_poster o está vacía/null, usar placeholder
+  if (!props.movie.url_poster || props.movie.url_poster.trim() === '') {
+    console.warn(`⚠️ Película "${props.movie.nombre}" sin póster, usando placeholder`)
+    return placeholderImage
+  }
+  
+  // Verificar si la URL es de un dominio problemático (Google Images encriptadas)
+  const isProblemDomain = problematicDomains.some(domain => 
+    props.movie.url_poster?.includes(domain)
+  )
+  
+  if (isProblemDomain) {
+    console.warn(`⚠️ Película "${props.movie.nombre}" usa URL de Google Images encriptada, usando placeholder`)
+    return placeholderImage
+  }
+  
+  return props.movie.url_poster
 })
 
 

@@ -202,12 +202,13 @@
                 ></textarea>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">URL del Poster</label>
-                <input 
-                  v-model="movieForm.url_poster" 
-                  type="url"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                >
+                <label class="block text-sm font-medium text-gray-700 mb-2">Póster de la Película</label>
+                <ImageUpload 
+                  v-model="movieForm.url_poster"
+                  bucket-name="posters"
+                  @upload-success="handlePosterUpload"
+                  @upload-error="handlePosterError"
+                />
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -525,6 +526,7 @@ import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import Toast from '../components/Toast.vue'
+import ImageUpload from '../components/ImageUpload.vue'
 import type { Pelicula } from '../interfaces/Pelicula'
 import type { Usuario } from '../interfaces/Usuario'
 import type { Reserva } from '../interfaces/Reserva'
@@ -590,6 +592,18 @@ const displayToast = (title: string, message: string, type: 'success' | 'error' 
   toastMessage.value = message
   toastType.value = type
   showToast.value = true
+}
+
+// Handlers para el upload de imágenes
+const handlePosterUpload = (url: string) => {
+  console.log('✅ Póster subido exitosamente:', url)
+  movieForm.value.url_poster = url
+  displayToast('Éxito', 'Imagen subida correctamente', 'success')
+}
+
+const handlePosterError = (error: string) => {
+  console.error('❌ Error al subir póster:', error)
+  displayToast('Error', error, 'error')
 }
 
 // ===== FUNCIONES DE SUPABASE =====

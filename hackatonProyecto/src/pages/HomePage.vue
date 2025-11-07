@@ -222,19 +222,56 @@
       class="container mx-auto px-8 mt-10 pb-16 grow"
       role="main"
     >
+      <!-- Estado de carga -->
+      <div 
+        v-if="loading" 
+        class="flex flex-col items-center justify-center py-20"
+        role="status"
+        aria-live="polite"
+      >
+        <svg class="w-16 h-16 text-[#C1272D] animate-spin mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-600 text-lg font-medium">Cargando películas...</p>
+      </div>
 
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h2 class="text-3xl font-bold text-gray-900 mb-2">
-            {{ tabs.find((t: any) => t.id === activeTab)?.label }}
-          </h2>
-          <p class="text-gray-500">
-            {{ filteredMovies.length }} película{{ filteredMovies.length !== 1 ? 's' : '' }} disponible{{ filteredMovies.length !== 1 ? 's' : '' }}
-            <span v-if="selectedLanguage" class="text-[#C1272D] font-medium">
-              • Filtrando por {{ selectedLanguage }}
-            </span>
-          </p>
-        </div>
+      <!-- Estado de error -->
+      <div 
+        v-else-if="error" 
+        class="text-center py-20"
+        role="alert"
+        aria-live="assertive"
+      >
+        <svg class="w-24 h-24 mx-auto text-red-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-red-600 text-lg font-medium mb-2">{{ error }}</p>
+        <button
+          @click="loadPeliculas"
+          class="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-[#C1272D] text-white rounded-lg hover:bg-[#8B1F23] transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Reintentar
+        </button>
+      </div>
+
+      <!-- Contenido principal -->
+      <template v-else>
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+              {{ tabs.find((t: any) => t.id === activeTab)?.label }}
+            </h2>
+            <p class="text-gray-500">
+              {{ filteredMovies.length }} película{{ filteredMovies.length !== 1 ? 's' : '' }} disponible{{ filteredMovies.length !== 1 ? 's' : '' }}
+              <span v-if="selectedLanguage" class="text-[#C1272D] font-medium">
+                • Filtrando por {{ selectedLanguage }}
+              </span>
+            </p>
+          </div>
         
 
         <div class="hidden md:flex items-center gap-4">
@@ -310,14 +347,17 @@
           Ver todas las películas
         </button>
       </div>
+      </template>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Movie, { type Movie as MovieType } from '../components/Movie.vue'
+import { supabase } from '../lib/supabase'
+import type { Pelicula } from '../interfaces/Pelicula'
 
 const router = useRouter()
 
@@ -331,81 +371,53 @@ const tabs = [
 const activeTab = ref('billboard')
 const selectedLanguage = ref('')
 const viewMode = ref<'grid' | 'list'>('grid')
+const movies = ref<MovieType[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
 
-const movies = ref<MovieType[]>([
-  {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    nombre: "THE MATRIX",
-    descripcion: "Un hacker descubre que la realidad tal como la conoce es una simulación creada por máquinas.",
-    url_poster: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
-    idioma: "Inglés",
-    fecha_hora_proyeccion: "2024-11-15T19:30:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    nombre: "INCEPTION",
-    descripcion: "Un ladrón que roba secretos corporativos mediante tecnología de sueños compartidos.",
-    url_poster: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
-    idioma: "Inglés",
-    fecha_hora_proyeccion: "2024-11-16T20:00:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    nombre: "ZOOPOCALIPSIS",
-    descripcion: "Aventura animada llena de acción y humor para toda la familia.",
-    url_poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
-    idioma: "Español",
-    fecha_hora_proyeccion: "2024-11-14T16:00:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440004',
-    nombre: "VOLVER AL FUTURO",
-    descripcion: "Un adolescente viaja accidentalmente 30 años al pasado en un DeLorean.",
-    url_poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-    idioma: "Inglés",
-    fecha_hora_proyeccion: "2024-11-17T18:30:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440005',
-    nombre: "EL CADAVER DE LA NOVIA",
-    descripcion: "Animación gótica de Tim Burton sobre amor más allá de la muerte.",
-    url_poster: "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
-    idioma: "Español",
-    fecha_hora_proyeccion: "2024-11-15T15:00:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440006',
-    nombre: "TELEFONO NEGRO 2",
-    descripcion: "Terror psicológico que explora los horrores del pasado.",
-    url_poster: "https://image.tmdb.org/t/p/w500/5vUux2vNUTqwCzb7tVcH18XnsF5.jpg",
-    idioma: "Inglés",
-    fecha_hora_proyeccion: "2024-11-18T21:30:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440007',
-    nombre: "LA VITA È BELLA",
-    descripcion: "Un padre usa su imaginación para proteger a su hijo en un campo de concentración.",
-    url_poster: "https://image.tmdb.org/t/p/w500/mGJuQwMq1bEboaVTqQAW9UZZfMo.jpg",
-    idioma: "Italiano",
-    fecha_hora_proyeccion: "2024-11-16T17:00:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440008',
-    nombre: "AMÉLIE",
-    descripcion: "Una joven parisina decide cambiar la vida de quienes la rodean.",
-    url_poster: "https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg",
-    idioma: "Francés",
-    fecha_hora_proyeccion: "2024-11-19T19:00:00Z",
-    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
+// Función para cargar películas desde Supabase
+const loadPeliculas = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    
+    const { data, error: supabaseError } = await supabase
+      .from('pelicula')
+      .select('*')
+      .order('fecha_hora_proyeccion', { ascending: true })
+    
+    if (supabaseError) {
+      console.error('❌ Error al cargar películas:', supabaseError)
+      error.value = 'Error al cargar las películas. Por favor, intenta de nuevo.'
+      return
+    }
+    
+    // Mapear los datos de Supabase al tipo MovieType
+    movies.value = (data as Pelicula[]) || []
+    console.log(`✅ ${movies.value.length} películas cargadas desde Supabase`)
+    
+    // Debug: Mostrar información de las películas cargadas
+    if (movies.value.length > 0) {
+      console.log('📽️ Primera película:', movies.value[0])
+      console.log('🖼️ URLs de pósters:', movies.value.map(m => ({ 
+        nombre: m.nombre, 
+        poster: m.url_poster || '❌ SIN PÓSTER' 
+      })))
+    } else {
+      console.warn('⚠️ No hay películas en la base de datos. Ejecuta el script de seed.')
+    }
+  } catch (err) {
+    console.error('❌ Error inesperado:', err)
+    error.value = 'Error al cargar las películas.'
+  } finally {
+    loading.value = false
   }
-])
+}
+
+// Cargar películas al montar el componente
+onMounted(() => {
+  loadPeliculas()
+})
 
 // Computed property para obtener idiomas únicos disponibles con conteos
 const availableLanguages = computed(() => {
