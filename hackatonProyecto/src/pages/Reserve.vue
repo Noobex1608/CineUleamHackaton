@@ -48,7 +48,7 @@
 
         <div class="mb-8">
           <div class="w-full max-w-2xl mx-auto mb-12">
-            <div class="h-1 bg-gradient-to-r from-yellow-500 via-cyan-500 to-yellow-500 rounded-full opacity-70"></div>
+            <div class="h-1 bg-linear-to-r from-yellow-500 via-cyan-500 to-yellow-500 rounded-full opacity-70"></div>
             <p class="text-center text-sm text-gray-400 mt-2">Pantalla</p>
           </div>
 
