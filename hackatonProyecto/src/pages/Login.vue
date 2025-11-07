@@ -1,5 +1,14 @@
 <template>
   <div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Toast Component -->
+    <Toast 
+      :show="toastConfig.show" 
+      :title="toastConfig.title"
+      :message="toastConfig.message"
+      :type="toastConfig.type"
+      @close="toastConfig.show = false"
+    />
+
     <div class="absolute inset-0 z-0">
       <img 
         src="../assets/GenteCine2.jpg" 
@@ -7,6 +16,85 @@
         class="w-full h-full object-cover"
       />
       <div class="absolute inset-0 bg-black opacity-60"></div>
+    </div>
+
+    <!-- Modal de Recuperación de Contraseña -->
+    <div 
+      v-if="showResetPassword"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+      @click.self="closeResetModal"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+        <button
+          @click="closeResetModal"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div class="text-center mb-6">
+          <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Recuperar Contraseña</h3>
+          <p class="text-sm text-gray-600">
+            Ingresa tu correo institucional y te enviaremos un enlace para restablecer tu contraseña.
+          </p>
+        </div>
+
+        <form @submit.prevent="handleResetPassword" class="space-y-4">
+          <div>
+            <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-2">
+              Correo Institucional
+            </label>
+            <input
+              id="reset-email"
+              v-model="resetEmail"
+              type="email"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+              placeholder="tu.nombre@live.uleam.edu.ec"
+            />
+          </div>
+
+          <div v-if="resetSuccess" class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p class="text-sm text-green-700 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              {{ resetSuccess }}
+            </p>
+          </div>
+
+          <div v-if="resetError" class="bg-red-50 border border-red-200 rounded-lg p-3">
+            <p class="text-sm text-red-600 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              {{ resetError }}
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            :disabled="isResetting"
+            class="w-full py-3 px-4 bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="!isResetting">Enviar Enlace de Recuperación</span>
+            <span v-else class="flex items-center justify-center gap-2">
+              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Enviando...
+            </span>
+          </button>
+        </form>
+      </div>
     </div>
 
     <div class="relative z-10 max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl border border-gray-100">
@@ -116,9 +204,13 @@
           </div>
 
           <div class="text-sm">
-            <a href="#" class="font-medium text-[#C1272D] hover:text-[#8B1F23] transition-colors">
+            <button 
+              @click="showResetPassword = true"
+              type="button"
+              class="font-medium text-[#C1272D] hover:text-[#8B1F23] transition-colors"
+            >
               ¿Olvidaste tu contraseña?
-            </a>
+            </button>
           </div>
         </div>
 
@@ -155,6 +247,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import { supabase } from '../lib/supabase'
+import Toast from '../components/Toast.vue'
 
 const { login } = useAuth()
 
@@ -165,6 +259,81 @@ const loginError = ref('')
 const showPassword = ref(false)
 const rememberMe = ref(false)
 const isLoading = ref(false)
+
+// Estados para recuperación de contraseña
+const showResetPassword = ref(false)
+const resetEmail = ref('')
+const isResetting = ref(false)
+const resetSuccess = ref('')
+const resetError = ref('')
+
+// Toast state
+const toastConfig = ref({
+  show: false,
+  title: '',
+  message: '',
+  type: 'info' as 'success' | 'error' | 'warning' | 'info'
+})
+
+const displayToast = (title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+  toastConfig.value = { show: true, title, message, type }
+}
+
+const closeResetModal = () => {
+  showResetPassword.value = false
+  resetEmail.value = ''
+  resetSuccess.value = ''
+  resetError.value = ''
+}
+
+const handleResetPassword = async () => {
+  if (!resetEmail.value) {
+    resetError.value = 'Por favor ingresa tu correo electrónico'
+    return
+  }
+
+  if (!resetEmail.value.endsWith('@live.uleam.edu.ec')) {
+    resetError.value = 'Debe usar un correo institucional (@live.uleam.edu.ec)'
+    return
+  }
+
+  isResetting.value = true
+  resetError.value = ''
+  resetSuccess.value = ''
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.value, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+
+    if (error) {
+      throw error
+    }
+
+    resetSuccess.value = '¡Correo enviado! Revisa tu bandeja de entrada.'
+    displayToast(
+      'Correo Enviado',
+      'Revisa tu correo institucional para restablecer tu contraseña',
+      'success'
+    )
+
+    // Cerrar modal después de 3 segundos
+    setTimeout(() => {
+      closeResetModal()
+    }, 3000)
+
+  } catch (error: any) {
+    console.error('Error al solicitar recuperación:', error)
+    resetError.value = error.message || 'Error al enviar el correo de recuperación'
+    displayToast(
+      'Error',
+      'No se pudo enviar el correo de recuperación',
+      'error'
+    )
+  } finally {
+    isResetting.value = false
+  }
+}
 
 const validateEmail = () => {
   const emailValue = email.value.trim()

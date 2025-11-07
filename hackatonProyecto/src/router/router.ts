@@ -6,6 +6,7 @@ import Login from "../pages/Login.vue";
 import MovieDetails from "../pages/MovieDetails.vue";
 import Registro from "../pages/Registro.vue";
 import Reserve from "../pages/Reserve.vue";
+import ResetPassword from "../pages/ResetPassword.vue";
 
 const routes = [
   {
@@ -22,6 +23,11 @@ const routes = [
     path: "/registro",
     name: "registro",
     component: Registro,
+  },
+  {
+    path: "/reset-password",
+    name: "resetPassword",
+    component: ResetPassword,
   },
   {
     path: "/movie/:movie",
