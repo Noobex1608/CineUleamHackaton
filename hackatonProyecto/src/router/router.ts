@@ -1,9 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 
-import HomePage from '../pages/HomePage.vue'
-import Login from '../pages/Login.vue'
+import HomePage from "../pages/HomePage.vue";
+import Login from "../pages/Login.vue";
 import MovieDetails from "../pages/MovieDetails.vue";
 import Registro from "../pages/Registro.vue";
+import Reserve from "../pages/Reserve.vue";
 
 const routes = [
   {
@@ -26,9 +27,14 @@ const routes = [
     name: "movieDetails",
     component: MovieDetails,
   },
+  {
+    path: "/reserve/:movie",
+    name: "Reserve",
+    component: Reserve,
+  },
 ];
 
 export const router = createRouter({
-    history: createWebHistory(),
-    routes
-})
+  history: createWebHistory(),
+  routes,
+});

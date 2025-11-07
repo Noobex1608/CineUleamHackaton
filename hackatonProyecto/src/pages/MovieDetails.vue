@@ -251,9 +251,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRoute } from "vue-router";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 const route = useRoute();
+const router = useRouter();
 
 const movie = computed(() => {
   const movieData = route.params.movie;
@@ -294,7 +294,13 @@ const getSalaNumber = (salaId: string) => {
 };
 
 const goToSeats = () => {
-  console.log("Navegando a selección de asientos...");
+  // Navegamos a la vista de reservas pasando la información de la película
+  router.push({
+    name: 'Reserve',
+    params: {
+      movie: encodeURIComponent(JSON.stringify(movie.value))
+    }
+  });
 };
 </script>
 
