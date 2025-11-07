@@ -1,6 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
+  <div>
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center gap-3">
@@ -89,35 +90,39 @@
             :key="reserva.id"
             class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
           >
-            <div class="flex flex-col sm:flex-row">
-              <!-- Poster -->
-              <div class="sm:w-1/3 relative">
-                <img
-                  :src="reserva.pelicula.url_poster"
-                  :alt="reserva.pelicula.nombre"
-                  class="w-full h-48 sm:h-full object-cover"
-                />
-                <!-- Status Badge -->
-                <div
-                  :class="[
-                    'absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold',
-                    isUpcoming(reserva.pelicula.fecha_hora_proyeccion)
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-500 text-white'
-                  ]"
-                >
-                  {{ isUpcoming(reserva.pelicula.fecha_hora_proyeccion) ? 'Próxima' : 'Pasada' }}
-                </div>
+            <!-- Poster Section -->
+            <div class="relative h-48">
+              <img
+                :src="reserva.pelicula.url_poster"
+                :alt="reserva.pelicula.nombre"
+                class="w-full h-full object-cover"
+              />
+              <!-- Status Badge -->
+              <div
+                :class="[
+                  'absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold',
+                  isUpcoming(reserva.pelicula.fecha_hora_proyeccion)
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-500 text-white'
+                ]"
+              >
+                {{ isUpcoming(reserva.pelicula.fecha_hora_proyeccion) ? 'Próxima' : 'Pasada' }}
               </div>
+            </div>
 
-              <!-- Details -->
-              <div class="flex-1 p-6">
-                <h3 class="text-xl font-bold text-gray-900 mb-2">
-                  {{ reserva.pelicula.nombre }}
-                </h3>
+            <!-- Ticket Content -->
+            <div class="p-6">
+              <!-- Movie Title -->
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                {{ reserva.pelicula.nombre }}
+              </h3>
 
-                <!-- Info Grid -->
-                <div class="space-y-3">
+              <div class="flex flex-col sm:flex-row gap-6">
+                <!-- Details Column -->
+                <div class="flex-1 space-y-3">
+              <div class="flex flex-col sm:flex-row gap-6">
+                <!-- Details Column -->
+                <div class="flex-1 space-y-3">
                   <!-- Fecha y Hora -->
                   <div class="flex items-start gap-2">
                     <CalendarIcon class="w-5 h-5 text-[#C1272D] flex-shrink-0 mt-0.5" />
@@ -166,17 +171,30 @@
                       </p>
                     </div>
                   </div>
-
-                  <!-- Fecha de Reserva -->
-                  <div class="pt-3 border-t border-gray-200">
-                    <p class="text-xs text-gray-500">
-                      Reservado el {{ formatDate(reserva.fecha_creacion) }}
-                    </p>
-                  </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="mt-4 flex gap-2">
+                <!-- QR Code Column -->
+                <div class="flex flex-col items-center justify-center sm:w-32 p-3 bg-gray-50 rounded-lg">
+                  <p class="text-xs text-gray-600 mb-2 font-medium">Tu código QR</p>
+                  <canvas
+                    :ref="(el) => setQRRef(el, reserva.id)"
+                    class="w-28 h-28"
+                  ></canvas>
+                  <p class="text-xs text-gray-500 mt-2 text-center">
+                    ID: {{ reserva.id.slice(0, 8) }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Fecha de Reserva -->
+              <div class="mt-4 pt-3 border-t border-gray-200">
+                <p class="text-xs text-gray-500">
+                  Reservado el {{ formatDate(reserva.fecha_creacion) }}
+                </p>
+              </div>
+
+              <!-- Actions -->
+              <div class="mt-4 flex gap-2">
                   <router-link
                     :to="getMovieDetailsRoute(reserva.pelicula)"
                     class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-center text-sm font-medium"
@@ -198,10 +216,11 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </div> <!-- End ticket card -->
+        </div> <!-- End tickets grid -->
+      </div> <!-- End Reservations List (v-else) -->
+    </div> <!-- End max-w-7xl mx-auto -->
+  </div> <!-- End min-h-screen -->
 
     <!-- Toast Notification -->
     <Toast
@@ -257,12 +276,13 @@
                   No, Mantener
                 </button>
               </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </Teleport>
-  </div>
+  </div> <!-- End wrapper div -->
 </template>
 
 <script setup lang="ts">
@@ -275,7 +295,8 @@ import {
   MapPinIcon,
   TicketIcon,
 } from "@heroicons/vue/24/outline";
-import { computed, onMounted, ref } from "vue";
+import QRCode from "qrcode";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import Toast from "../components/Toast.vue";
 import { useAuth } from "../composables/useAuth";
@@ -291,6 +312,9 @@ const error = ref("");
 const cancelingId = ref<string | null>(null);
 const showCancelModal = ref(false);
 const reservationToCancel = ref<any>(null);
+
+// QR code refs
+const qrRefs = ref<Map<string, HTMLCanvasElement>>(new Map());
 
 // Toast state
 const showToast = ref(false);
@@ -321,11 +345,54 @@ const loadReservations = async () => {
     loading.value = true;
     error.value = "";
     reservations.value = await getUserReservations(currentUser.value.id);
+    
+    // Generate QR codes after loading reservations
+    await nextTick();
+    await generateQRCodes();
   } catch (err: any) {
     console.error("Error cargando reservas:", err);
     error.value = err.message || "Error al cargar las reservas";
   } finally {
     loading.value = false;
+  }
+};
+
+// Set QR ref
+const setQRRef = (el: any, reservaId: string) => {
+  if (el && el instanceof HTMLCanvasElement) {
+    qrRefs.value.set(reservaId, el);
+  }
+};
+
+// Generate QR codes for all reservations
+const generateQRCodes = async () => {
+  for (const reserva of reservations.value) {
+    const canvas = qrRefs.value.get(reserva.id);
+    if (canvas) {
+      try {
+        // Create QR data with reservation details
+        const qrData = JSON.stringify({
+          reservaId: reserva.id,
+          peliculaId: reserva.pelicula.id,
+          pelicula: reserva.pelicula.nombre,
+          sala: reserva.pelicula.sala.nombre,
+          asiento: `${reserva.asiento.fila}${reserva.asiento.numero}`,
+          fecha: reserva.pelicula.fecha_hora_proyeccion,
+          usuarioId: currentUser.value?.id,
+        });
+
+        await QRCode.toCanvas(canvas, qrData, {
+          width: 112, // 28 * 4 (w-28 = 7rem = 112px)
+          margin: 1,
+          color: {
+            dark: "#C1272D", // ULEAM red
+            light: "#FFFFFF",
+          },
+        });
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    }
   }
 };
 
