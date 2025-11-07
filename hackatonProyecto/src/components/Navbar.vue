@@ -6,7 +6,7 @@
   >
     <div class="container mx-auto px-8">
       <div class="flex items-center justify-between h-20">
-        <!-- Logo ULEAM - Lado Izquierdo -->
+
         <div class="flex items-center">
           <router-link 
             to="/" 
@@ -22,9 +22,9 @@
           </router-link>
         </div>
 
-        <!-- Menu Desktop - Lado Derecho -->
+
         <div class="hidden md:flex items-center gap-4" role="menubar">
-          <!-- Cartelera -->
+
           <router-link 
             to="/cartelera" 
             class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
@@ -35,7 +35,6 @@
             <span>Cartelera</span>
           </router-link>
 
-          <!-- Registro -->
           <router-link 
             to="/registro" 
             class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
@@ -58,7 +57,7 @@
           </router-link>
         </div>
 
-        <!-- Botón Hamburguesa - Mobile -->
+
         <button 
           @click="toggleMenu" 
           class="md:hidden text-gray-700 hover:text-[#C1272D] transition-colors p-2 focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded"
@@ -71,7 +70,7 @@
         </button>
       </div>
 
-      <!-- Menu Mobile -->
+
       <div 
         v-if="isMenuOpen" 
         id="mobile-menu"
@@ -133,7 +132,7 @@ const toggleMenu = () => {
 </script>
 
 <style scoped>
-/* Estilos adicionales si son necesarios */
+
 .router-link-active {
   color: #C1272D;
 }
