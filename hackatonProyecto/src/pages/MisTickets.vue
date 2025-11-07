@@ -178,7 +178,7 @@
                 <!-- Actions -->
                 <div class="mt-4 flex gap-2">
                   <router-link
-                    :to="`/movie/${reserva.pelicula.id}`"
+                    :to="getMovieDetailsRoute(reserva.pelicula)"
                     class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-center text-sm font-medium"
                   >
                     Ver Detalles
@@ -352,6 +352,24 @@ const formatTime = (dateString: string) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+// Get movie details route
+const getMovieDetailsRoute = (pelicula: any) => {
+  // Crear objeto de película con el formato esperado por MovieDetails
+  const movieData = {
+    id: pelicula.id,
+    nombre: pelicula.nombre,
+    descripcion: pelicula.descripcion,
+    url_poster: pelicula.url_poster,
+    idioma: pelicula.idioma,
+    fecha_hora_proyeccion: pelicula.fecha_hora_proyeccion,
+    sala_id: pelicula.sala.nombre,
+  };
+  
+  // Codificar el objeto como JSON y pasarlo en la URL
+  const encodedMovie = encodeURIComponent(JSON.stringify(movieData));
+  return `/movie/${encodedMovie}`;
 };
 
 // Display toast
