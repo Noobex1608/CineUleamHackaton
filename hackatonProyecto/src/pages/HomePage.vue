@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-white" lang="es">
-    <!-- Skip to main content link para accesibilidad -->
+
     <a 
       href="#main-content" 
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-[#C1272D] text-white px-4 py-2 rounded z-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B1F23]"
@@ -8,13 +8,13 @@
       Saltar al contenido principal
     </a>
 
-    <!-- Hero Section -->
+
     <section 
       class="relative h-[450px] md:h-[500px] bg-linear-to-r from-[#C1272D] via-[#A12027] to-[#8B1F23] overflow-hidden"
       aria-labelledby="hero-heading"
       role="banner"
     >
-      <!-- Imagen de fondo con overlay -->
+
       <div class="absolute inset-0" aria-hidden="true">
         <img 
           src="../assets/GenteCine.jpg" 
@@ -22,7 +22,7 @@
           class="w-full h-full object-cover opacity-25 mix-blend-overlay"
           role="presentation"
         />
-        <!-- Patrón de puntos decorativo -->
+>
         <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
       </div>
       
@@ -45,7 +45,7 @@
         </div>
       </div>
       
-      <!-- Indicador de scroll -->
+
       <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
         <svg class="w-6 h-6 text-white opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -53,7 +53,7 @@
       </div>
     </section>
 
-    <!-- Navigation Tabs -->
+
     <nav 
       class="bg-white border-b border-gray-200 sticky top-20 z-20 shadow-sm" 
       aria-label="Filtros de películas"
@@ -82,7 +82,7 @@
             </button>
           </div>
           
-          <!-- Selector de vista (opcional) -->
+
           <div class="hidden md:flex items-center gap-2">
             <span class="text-sm text-gray-500 mr-2">Vista:</span>
             <button class="p-2 rounded hover:bg-gray-100 transition-colors" title="Vista en cuadrícula">
@@ -100,13 +100,13 @@
       </div>
     </nav>
 
-    <!-- Movies Grid -->
+
     <main 
       id="main-content"
       class="container mx-auto px-8 mt-10 pb-16 grow"
       role="main"
     >
-      <!-- Encabezado de sección -->
+
       <div class="flex items-center justify-between mb-8">
         <div>
           <h2 class="text-3xl font-bold text-gray-900 mb-2">
@@ -117,7 +117,7 @@
           </p>
         </div>
         
-        <!-- Filtros adicionales (opcional) -->
+
         <div class="hidden md:flex items-center gap-4">
           <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent">
             <option>Todos los idiomas</option>
@@ -130,7 +130,7 @@
         </div>
       </div>
 
-      <!-- Grid de películas -->
+
       <div 
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         role="list"
@@ -144,7 +144,7 @@
         />
       </div>
       
-      <!-- Mensaje cuando no hay películas -->
+
       <div 
         v-if="filteredMovies.length === 0" 
         class="text-center py-20"
@@ -165,7 +165,7 @@
 import { ref, computed } from 'vue'
 import Movie, { type Movie as MovieType } from '../components/Movie.vue'
 
-// Tabs de navegación
+
 const tabs = [
   { id: 'billboard', label: 'Cartelera' },
   { id: 'now', label: 'Ahora' },
@@ -174,7 +174,7 @@ const tabs = [
 
 const activeTab = ref('billboard')
 
-// Datos de películas de ejemplo
+
 const movies = ref<MovieType[]>([
   {
     id: '550e8400-e29b-41d4-a716-446655440001',
@@ -250,23 +250,23 @@ const movies = ref<MovieType[]>([
   }
 ])
 
-// Películas filtradas según la tab activa
+
 const filteredMovies = computed(() => {
-  // Aquí puedes agregar lógica de filtrado según la tab
+
   return movies.value
 })
 
-// Manejadores de eventos
+
 const handleViewDetails = (movie: MovieType) => {
   console.log('Ver detalles de:', movie.nombre)
   console.log('Sala ID:', movie.sala_id)
   console.log('Fecha proyección:', movie.fecha_hora_proyeccion)
-  // Aquí puedes navegar a una página de detalles o abrir un modal de reserva
+
 }
 </script>
 
 <style scoped>
-/* Clase para ocultar visualmente pero mantener accesible para lectores de pantalla */
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -291,7 +291,7 @@ const handleViewDetails = (movie: MovieType) => {
   white-space: normal;
 }
 
-/* Animaciones del hero */
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -315,7 +315,7 @@ const handleViewDetails = (movie: MovieType) => {
   animation: fade-in 0.8s ease-out 0.4s both;
 }
 
-/* Reducir movimiento para usuarios con preferencias */
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
   .animate-fade-in-delay,

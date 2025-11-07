@@ -46,8 +46,8 @@
             <span>Registro</span>
           </router-link>
 
-          <!-- Iniciar Sesión -->
           <router-link 
+            v-if="!isLoginPage"
             to="/login" 
             class="bg-[#C1272D] hover:bg-[#8B1F23] text-white text-sm font-medium px-5 py-2 rounded transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
             role="menuitem"
@@ -101,6 +101,7 @@
         </router-link>
 
         <router-link 
+          v-if="!isLoginPage"
           to="/login" 
           @click="toggleMenu"
           class="flex items-center gap-3 bg-[#C1272D] hover:bg-[#8B1F23] text-white font-medium px-4 py-2 rounded transition-colors justify-center focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
@@ -116,13 +117,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { FilmIcon, UserPlusIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline' 
+import { ref, computed } from 'vue'
+import { FilmIcon, UserPlusIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { useRoute } from 'vue-router'
 
-// Estado del menu mobile
+const route = useRoute()
+
 const isMenuOpen = ref(false)
 
-// Toggle menu mobile
+const isLoginPage = computed(() => route.path === '/login')
+
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
