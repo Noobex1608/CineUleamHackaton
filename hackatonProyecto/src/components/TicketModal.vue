@@ -169,9 +169,10 @@
 </template>
 
 <script setup lang="ts">
-import html2canvas from "html2canvas";
+import * as domtoimage from 'dom-to-image-more';
 import QRCode from "qrcode";
 import { nextTick, onMounted, ref, watch } from "vue";
+import { supabase } from "../lib/supabase";
 
 interface TicketData {
   reservationId: string;
@@ -251,16 +252,13 @@ const downloadTicket = async () => {
   if (!ticketRef.value) return;
 
   try {
-    // Capturar el ticket completo como imagen
-    const canvas = await html2canvas(ticketRef.value, {
-      backgroundColor: '#ffffff',
-      scale: 2, // Mayor calidad
-      logging: false,
-      useCORS: true
+    // Capturar el ticket completo como imagen usando dom-to-image-more
+    const dataUrl = await domtoimage.toPng(ticketRef.value, {
+      quality: 1.0,
+      bgcolor: '#ffffff'
     });
 
-    // Convertir a imagen y descargar
-    const dataUrl = canvas.toDataURL('image/png');
+    // Descargar la imagen
     const link = document.createElement('a');
     link.download = `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.png`;
     link.href = dataUrl;
@@ -272,28 +270,58 @@ const downloadTicket = async () => {
 };
 
 const sendEmail = async () => {
+  if (!ticketRef.value) return;
+  
   emailSending.value = true;
 
   try {
-    // Aquí se integraría con tu backend para enviar el email
-    // Por ahora simulamos el envío
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Capturar el ticket como imagen usando dom-to-image-more
+    const imageBase64 = await domtoimage.toPng(ticketRef.value, {
+      quality: 1.0,
+      bgcolor: '#ffffff'
+    });
+    
+    // Preparar datos del email
+    const emailData = {
+      to: props.ticketData.userEmail,
+      userName: props.ticketData.userName,
+      movieName: props.ticketData.movieName,
+      movieLanguage: props.ticketData.movieLanguage,
+      dateTime: `${formatDate(props.ticketData.dateTime)} a las ${formatTime(props.ticketData.dateTime)}`,
+      sala: props.ticketData.salaName,
+      seat: `${props.ticketData.seatRow}${props.ticketData.seatNumber}`,
+      reservationId: props.ticketData.reservationId.substring(0, 8),
+      ticketImage: imageBase64 // Incluir la imagen del ticket con QR
+    };
 
-    alert("✅ Ticket enviado a tu correo electrónico!");
+    // Llamar a la Edge Function de Supabase para enviar el email
+    const { error } = await supabase.functions.invoke('send-ticket-email', {
+      body: emailData
+    });
+
+    if (error) throw error;
+    
+    console.log('✉️ Email enviado exitosamente a:', props.ticketData.userEmail);
+    // alert(`✅ Ticket enviado exitosamente a ${props.ticketData.userEmail}`);
   } catch (error) {
-    console.error("Error enviando email:", error);
-    alert("❌ Error al enviar el ticket. Por favor, intenta de nuevo.");
+    console.error('❌ Error al enviar email:', error);
+    // alert('⚠️ No se pudo enviar el email automáticamente. Por favor, descarga tu ticket.');
   } finally {
     emailSending.value = false;
   }
 };
 
+// Enviar automáticamente el email cuando se muestra el ticket
 watch(
   () => props.show,
   async (newValue) => {
     if (newValue) {
       await nextTick();
       generateQR();
+      // Enviar email automáticamente después de generar el QR
+      setTimeout(() => {
+        sendEmail();
+      }, 500);
     }
   }
 );
