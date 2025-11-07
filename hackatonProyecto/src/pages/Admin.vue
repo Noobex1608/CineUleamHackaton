@@ -1,5 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-100 pt-8">
+    <Toast
+      :show="showToast"
+      :message="toastMessage"
+      :title="toastTitle"
+      :type="toastType"
+      @close="showToast = false"
+    />
+    
     <!-- Título del Admin -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
       <div class="text-center">
@@ -71,7 +79,7 @@
           <!-- Tarjetas de Estadísticas -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Tarjeta de Películas -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-xl rounded-2xl">
+            <div class="bg-linear-to-br from-blue-500 to-blue-600 overflow-hidden shadow-xl rounded-2xl">
               <div class="p-8">
                 <div class="flex items-center justify-between">
                   <div>
@@ -89,7 +97,7 @@
             </div>
 
             <!-- Tarjeta de Usuarios -->
-            <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-xl rounded-2xl">
+            <div class="bg-linear-to-br from-green-500 to-green-600 overflow-hidden shadow-xl rounded-2xl">
               <div class="p-8">
                 <div class="flex items-center justify-between">
                   <div>
@@ -107,7 +115,7 @@
             </div>
 
             <!-- Tarjeta de Reservas -->
-            <div class="bg-gradient-to-br from-yellow-500 to-orange-500 overflow-hidden shadow-xl rounded-2xl">
+            <div class="bg-linear-to-br from-yellow-500 to-orange-500 overflow-hidden shadow-xl rounded-2xl">
               <div class="p-8">
                 <div class="flex items-center justify-between">
                   <div>
@@ -125,7 +133,7 @@
             </div>
 
             <!-- Tarjeta de Salas -->
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 overflow-hidden shadow-xl rounded-2xl">
+            <div class="bg-linear-to-br from-purple-500 to-purple-600 overflow-hidden shadow-xl rounded-2xl">
               <div class="p-8">
                 <div class="flex items-center justify-between">
                   <div>
@@ -383,7 +391,7 @@
               <li v-for="sala in salas" :key="sala.id" class="px-6 py-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                       <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-12 0H3m2 0h2m0 0v-3.5a2 2 0 011-1.732l.5-.289a2 2 0 011 0l.5.289a2 2 0 011 1.732V21"/>
@@ -464,17 +472,17 @@
           
           <!-- Tarjetas de resumen -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+            <div class="bg-linear-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
               <h4 class="text-blue-100 text-sm font-medium uppercase tracking-wider">Total de Reservas</h4>
               <p class="text-3xl font-bold mt-2">{{ totalReservas }}</p>
               <p class="text-blue-200 text-sm mt-1">Confirmadas</p>
             </div>
-            <div class="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+            <div class="bg-linear-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h4 class="text-green-100 text-sm font-medium uppercase tracking-wider">Idiomas Disponibles</h4>
               <p class="text-3xl font-bold mt-2">{{ uniqueLanguages }}</p>
               <p class="text-green-200 text-sm mt-1">En cartelera</p>
             </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+            <div class="bg-linear-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
               <h4 class="text-purple-100 text-sm font-medium uppercase tracking-wider">Idioma Más Popular</h4>
               <p class="text-3xl font-bold mt-2">{{ mostPopularLanguage }}</p>
               <p class="text-purple-200 text-sm mt-1">Preferido</p>
@@ -483,7 +491,7 @@
 
           <!-- Gráfico Principal -->
           <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-            <div class="bg-gradient-to-r from-gray-50 to-white px-8 py-6 border-b">
+            <div class="bg-linear-to-r from-gray-50 to-white px-8 py-6 border-b">
               <h3 class="text-2xl font-bold text-gray-900">Distribución de Reservas por Idioma</h3>
               <p class="text-gray-600 mt-1">Visualización de preferencias de idioma de los usuarios</p>
             </div>
@@ -513,11 +521,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../composables/useAuth'
+import Toast from '../components/Toast.vue'
 import type { Pelicula } from '../interfaces/Pelicula'
 import type { Usuario } from '../interfaces/Usuario'
 import type { Reserva } from '../interfaces/Reserva'
 import type { Sala } from '../interfaces/Sala'
+
+const router = useRouter()
+const { isAuthenticated, currentUser, checkSession } = useAuth()
+
+// Toast state
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastTitle = ref('')
+const toastType = ref<'success' | 'error' | 'warning' | 'info'>('info')
 
 // Estado de la aplicación
 const activeTab = ref('dashboard')
@@ -564,6 +584,14 @@ const salaForm = ref<Partial<Sala>>({
 
 const chartCanvas = ref<HTMLCanvasElement>()
 
+// Función helper para mostrar toast
+const displayToast = (title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+  toastTitle.value = title
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+}
+
 // ===== FUNCIONES DE SUPABASE =====
 
 // Cargar películas desde Supabase
@@ -580,7 +608,7 @@ const loadPeliculas = async () => {
     peliculas.value = data || []
   } catch (error) {
     console.error('Error al cargar películas:', error)
-    alert('Error al cargar las películas')
+    displayToast('Error', 'No se pudieron cargar las películas', 'error')
   } finally {
     isLoadingPeliculas.value = false
   }
@@ -600,7 +628,7 @@ const loadSalas = async () => {
     salas.value = data || []
   } catch (error) {
     console.error('Error al cargar salas:', error)
-    alert('Error al cargar las salas')
+    displayToast('Error', 'No se pudieron cargar las salas', 'error')
   } finally {
     isLoadingSalas.value = false
   }
@@ -715,7 +743,7 @@ const submitMovie = async () => {
 
       if (error) throw error
       
-      alert('Película actualizada exitosamente')
+      displayToast('Éxito', 'Película actualizada exitosamente', 'success')
     } else {
       // Crear nueva película
       const { error } = await supabase
@@ -731,7 +759,7 @@ const submitMovie = async () => {
 
       if (error) throw error
       
-      alert('Película creada exitosamente')
+      displayToast('Éxito', 'Película creada exitosamente', 'success')
     }
     
     // Recargar las películas
@@ -741,7 +769,7 @@ const submitMovie = async () => {
   } catch (error: any) {
     console.error('Error al guardar película:', error)
     console.error('Detalles del error:', JSON.stringify(error, null, 2))
-    alert(`Error al guardar la película: ${error.message || 'Error desconocido'}`)
+    displayToast('Error', `No se pudo guardar la película: ${error.message || 'Error desconocido'}`, 'error')
   }
 }
 
@@ -755,13 +783,13 @@ const deleteMovie = async (id: string) => {
 
       if (error) throw error
       
-      alert('Película eliminada exitosamente')
+      displayToast('Éxito', 'Película eliminada exitosamente', 'success')
       // Recargar las películas
       await loadPeliculas()
       
     } catch (error) {
       console.error('Error al eliminar película:', error)
-      alert('Error al eliminar la película')
+      displayToast('Error', 'No se pudo eliminar la película', 'error')
     }
   }
 }
@@ -796,7 +824,7 @@ const submitSala = async () => {
 
       if (error) throw error
       
-      alert('Sala actualizada exitosamente')
+      displayToast('Éxito', 'Sala actualizada exitosamente', 'success')
     } else {
       // Crear nueva sala
       const { error } = await supabase
@@ -808,7 +836,7 @@ const submitSala = async () => {
 
       if (error) throw error
       
-      alert('Sala creada exitosamente')
+      displayToast('Éxito', 'Sala creada exitosamente', 'success')
     }
     
     // Recargar las salas
@@ -818,7 +846,7 @@ const submitSala = async () => {
   } catch (error: any) {
     console.error('Error al guardar sala:', error)
     console.error('Detalles del error:', JSON.stringify(error, null, 2))
-    alert(`Error al guardar la sala: ${error.message || 'Error desconocido'}`)
+    displayToast('Error', `No se pudo guardar la sala: ${error.message || 'Error desconocido'}`, 'error')
   }
 }
 
@@ -834,7 +862,7 @@ const deleteSala = async (id: string) => {
       if (checkError) throw checkError
 
       if (peliculasEnSala && peliculasEnSala.length > 0) {
-        alert(`No se puede eliminar la sala porque tiene ${peliculasEnSala.length} película(s) programada(s).`)
+        displayToast('Advertencia', `No se puede eliminar la sala porque tiene ${peliculasEnSala.length} película(s) programada(s).`, 'warning')
         return
       }
 
@@ -845,13 +873,13 @@ const deleteSala = async (id: string) => {
 
       if (error) throw error
       
-      alert('Sala eliminada exitosamente')
+      displayToast('Éxito', 'Sala eliminada exitosamente', 'success')
       // Recargar las salas
       await loadSalas()
       
     } catch (error) {
       console.error('Error al eliminar sala:', error)
-      alert('Error al eliminar la sala')
+      displayToast('Error', 'No se pudo eliminar la sala', 'error')
     }
   }
 }
@@ -983,6 +1011,30 @@ const refreshChart = () => {
 }
 
 onMounted(async () => {
+  // Verificar autenticación primero
+  await checkSession()
+  
+
+  
+  // Si no está autenticado, redirigir al login
+  if (!isAuthenticated.value) {
+
+    router.push('/login')
+    return
+  }
+  
+  // Verificar si el usuario es administrador
+  if (currentUser.value?.tipo !== 'admin') {
+
+    displayToast('Acceso Denegado', 'No tienes permisos para acceder al panel de administración', 'error')
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+    return
+  }
+  
+
+  
   // Cargar datos iniciales
   await Promise.all([
     loadPeliculas(),

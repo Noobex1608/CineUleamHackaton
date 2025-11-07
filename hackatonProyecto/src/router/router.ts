@@ -47,14 +47,28 @@ export const router = createRouter({
 });
 
 // Guard para proteger rutas
-router.beforeEach((to, _from, next) => {
-  const { isAuthenticated, isAdmin } = useAuth();
+router.beforeEach(async (to, _from, next) => {
+  const { isAuthenticated, isAdmin, checkSession } = useAuth();
+  
+  // Esperar a que se verifique la sesión antes de evaluar
+  await checkSession();
+  
+  console.log('🔐 Router Guard:', {
+    route: to.path,
+    requiresAuth: to.meta.requiresAuth,
+    requiresAdmin: to.meta.requiresAdmin,
+    isAuthenticated: isAuthenticated.value,
+    isAdmin: isAdmin.value
+  });
   
   if (to.meta.requiresAuth && !isAuthenticated.value) {
+    console.log('❌ Guard: No autenticado, redirigiendo a /login');
     next('/login');
   } else if (to.meta.requiresAdmin && !isAdmin.value) {
+    console.log('❌ Guard: No es admin, redirigiendo a /');
     next('/'); // Redirigir al home si no es admin
   } else {
+    console.log('✅ Guard: Acceso permitido');
     next();
   }
 });
