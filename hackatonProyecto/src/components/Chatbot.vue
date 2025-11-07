@@ -47,7 +47,12 @@
                   : 'bg-white text-gray-800 border border-gray-200'
               ]"
             >
-              <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
+              <div 
+                v-if="message.role === 'assistant'"
+                class="text-sm prose prose-sm max-w-none"
+                v-html="formatMarkdown(message.content)"
+              ></div>
+              <p v-else class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
               <span class="text-xs opacity-70 mt-1 block">{{ formatTime(message.timestamp) }}</span>
             </div>
           </div>
@@ -117,6 +122,7 @@ import axios from 'axios'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import type { Pelicula } from '../interfaces/Pelicula'
 import { supabase } from '../lib/supabase'
+import { marked } from 'marked'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -211,20 +217,45 @@ const formatTime = (date: Date) => {
   return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 }
 
+const formatMarkdown = (text: string): string => {
+  // Configurar marked para mejor renderizado
+  marked.setOptions({
+    breaks: true,
+    gfm: true
+  })
+  
+  return marked.parse(text) as string
+}
+
 const callPerplexityAPI = async (userMessage: string): Promise<string> => {
   try {
     // Construir el historial de mensajes para contexto
-    const conversationHistory = messages.value
-      .slice(-6) // Últimos 6 mensajes para mantener contexto
-      .map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
+    // Asegurarse de que los mensajes alternen entre user y assistant
+    const conversationHistory: { role: string; content: string }[] = []
+    const recentMessages = messages.value.slice(-6) // Últimos 6 mensajes
+    
+    // Filtrar para asegurar alternancia correcta: user -> assistant -> user -> assistant
+    for (let i = 0; i < recentMessages.length - 1; i++) {
+      const current = recentMessages[i]
+      const next = recentMessages[i + 1]
+      
+      // Solo incluir pares user-assistant válidos con verificación de existencia
+      if (current && next && current.role === 'user' && next.role === 'assistant') {
+        conversationHistory.push({
+          role: 'user',
+          content: current.content
+        })
+        conversationHistory.push({
+          role: 'assistant',
+          content: next.content
+        })
+      }
+    }
 
     const response = await axios.post(
       PERPLEXITY_API_URL,
       {
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar-pro', // Modelo actualizado de Perplexity
         messages: [
           {
             role: 'system',
@@ -248,9 +279,25 @@ const callPerplexityAPI = async (userMessage: string): Promise<string> => {
     )
 
     return response.data.choices[0].message.content
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al llamar a Perplexity API:', error)
-    return '❌ Lo siento, hubo un error al procesar tu pregunta. Por favor, intenta de nuevo.'
+    
+    // Log detallado del error para debugging
+    if (error.response) {
+      console.error('Response status:', error.response.status)
+      console.error('Response data:', JSON.stringify(error.response.data, null, 2))
+      console.error('Response headers:', error.response.headers)
+      
+      // Mostrar mensaje específico del error
+      const errorMsg = error.response.data?.error?.message || error.response.data?.detail || 'Error desconocido'
+      return `❌ Error (${error.response.status}): ${errorMsg}`
+    } else if (error.request) {
+      console.error('No response received:', error.request)
+      return '❌ No se recibió respuesta del servidor. Verifica tu conexión.'
+    } else {
+      console.error('Error message:', error.message)
+      return `❌ Error: ${error.message}`
+    }
   }
 }
 
@@ -364,5 +411,70 @@ Puedo ayudarte a:
 
 ::-webkit-scrollbar-thumb:hover {
   background: #8B1F23;
+}
+
+/* Estilos para contenido Markdown */
+.prose {
+  color: inherit;
+}
+
+.prose strong {
+  color: #C1272D;
+  font-weight: 700;
+}
+
+.prose p {
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.prose li {
+  margin: 0.25em 0;
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  color: #C1272D;
+  font-weight: 700;
+  margin: 0.5em 0 0.3em 0;
+}
+
+.prose h1 {
+  font-size: 1.25em;
+}
+
+.prose h2 {
+  font-size: 1.1em;
+}
+
+.prose h3 {
+  font-size: 1em;
+}
+
+.prose code {
+  background: #f3f4f6;
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+  font-size: 0.9em;
+}
+
+.prose a {
+  color: #C1272D;
+  text-decoration: underline;
+}
+
+.prose blockquote {
+  border-left: 3px solid #C1272D;
+  padding-left: 1em;
+  margin: 0.5em 0;
+  font-style: italic;
+  color: #6b7280;
 }
 </style>
