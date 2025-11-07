@@ -36,24 +36,28 @@
           </router-link>
 
           <router-link 
-            to="/registro" 
-            class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
-            role="menuitem"
-            aria-label="Crear cuenta nueva"
-          >
-            <UserPlusIcon class="w-4 h-4" aria-hidden="true" />
-            <span>Registro</span>
-          </router-link>
+            
 
-          <router-link 
             v-if="!isLoginPage"
             to="/login" 
-            class="bg-[#C1272D] hover:bg-[#8B1F23] text-white text-sm font-medium px-5 py-2 rounded transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
+            class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
+
             role="menuitem"
             aria-label="Iniciar sesión en tu cuenta"
           >
             <ArrowRightOnRectangleIcon class="w-4 h-4" aria-hidden="true" />
             <span>Iniciar Sesión</span>
+          </router-link>
+
+          <router-link 
+            v-if="!isRegisterPage"
+            to="/registro" 
+            class="bg-[#C1272D] hover:bg-[#8B1F23] text-white text-sm font-medium px-5 py-2 rounded transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
+            role="menuitem"
+            aria-label="Crear cuenta nueva"
+          >
+            <UserPlusIcon class="w-4 h-4" aria-hidden="true" />
+            <span>Registro</span>
           </router-link>
         </div>
 
@@ -125,6 +129,7 @@ const route = useRoute()
 const isMenuOpen = ref(false)
 
 const isLoginPage = computed(() => route.path === '/login')
+const isRegisterPage = computed(() => route.path === '/registro')
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
