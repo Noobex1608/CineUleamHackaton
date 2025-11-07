@@ -91,16 +91,16 @@
             class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
           >
             <!-- Poster Section -->
-            <div class="relative h-48">
+            <div class="relative h-64 sm:h-72 bg-gray-900">
               <img
                 :src="reserva.pelicula.url_poster"
                 :alt="reserva.pelicula.nombre"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-contain"
               />
               <!-- Status Badge -->
               <div
                 :class="[
-                  'absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold',
+                  'absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold shadow-lg',
                   isUpcoming(reserva.pelicula.fecha_hora_proyeccion)
                     ? 'bg-green-500 text-white'
                     : 'bg-gray-500 text-white'
