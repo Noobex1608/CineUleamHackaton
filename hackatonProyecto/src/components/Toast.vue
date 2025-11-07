@@ -4,7 +4,7 @@
       v-if="show"
       class="fixed top-20 right-6 z-50 max-w-md bg-white rounded-lg shadow-2xl border-l-4 border-[#C1272D] p-4 flex items-start gap-3"
     >
-      <div class="flex-shrink-0">
+      <div class="shrink-0">
         <svg
           v-if="type === 'warning'"
           class="w-6 h-6 text-[#C1272D]"
@@ -70,7 +70,7 @@
       </div>
       <button
         @click="close"
-        class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+        class="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 
 interface Props {
   show: boolean

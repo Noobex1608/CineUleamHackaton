@@ -5,7 +5,7 @@
         v-if="isOpen"
         class="bg-white rounded-2xl shadow-2xl w-96 h-[600px] flex flex-col border border-gray-200 mb-4 mr-4"
       >
-        <div class="bg-gradient-to-r from-[#C1272D] to-[#8B1F23] p-4 rounded-t-2xl flex items-center justify-between">
+        <div class="bg-linear-to-r from-[#C1272D] to-[#8B1F23] p-4 rounded-t-2xl flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
               <svg class="w-6 h-6 text-[#C1272D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
