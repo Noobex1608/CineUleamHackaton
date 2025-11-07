@@ -1,5 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50">
+    <Toast
+      :show="showToast"
+      :message="toastMessage"
+      :title="toastTitle"
+      :type="toastType"
+      @close="showToast = false"
+    />
+    
     <div class="bg-white border-b border-gray-200 py-6">
       <div class="container mx-auto px-8">
         <router-link
@@ -250,10 +258,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useAuth } from "../composables/useAuth";
+import Toast from "../components/Toast.vue";
+
+const { isAuthenticated } = useAuth();
 const route = useRoute();
 const router = useRouter();
+
+// Toast state
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastTitle = ref('');
+const toastType = ref<'success' | 'error' | 'warning' | 'info'>('info');
 
 const movie = computed(() => {
   const movieData = route.params.movie;
@@ -294,7 +312,21 @@ const getSalaNumber = (salaId: string) => {
 };
 
 const goToSeats = () => {
-  // Navegamos a la vista de reservas pasando la información de la película
+  if (!isAuthenticated.value) {
+    // Mostrar toast notification
+    toastTitle.value = 'Autenticación requerida';
+    toastMessage.value = 'Por favor, inicia sesión para reservar asientos.';
+    toastType.value = 'warning';
+    showToast.value = true;
+    
+    // Redirigir al login después de 2 segundos
+    setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+    return;
+  }
+  
+  // Si está autenticado, ir a la página de reservas
   router.push({
     name: 'Reserve',
     params: {

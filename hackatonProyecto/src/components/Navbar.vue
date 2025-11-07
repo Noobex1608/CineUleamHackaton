@@ -165,7 +165,7 @@
           <span>Admin</span>
         </router-link>
 
-        <!-- Mostrar info del usuario si está autenticado -->
+
         <div v-if="isAuthenticated" class="space-y-3">
           <div class="px-2 py-2 text-sm text-gray-600 border-t border-gray-200">
             Hola, {{ currentUser?.nombre }}
