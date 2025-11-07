@@ -85,13 +85,47 @@
 
           <div class="hidden md:flex items-center gap-2">
             <span class="text-sm text-gray-500 mr-2">Vista:</span>
-            <button class="p-2 rounded hover:bg-gray-100 transition-colors" title="Vista en cuadrícula">
-              <svg class="w-5 h-5 text-[#C1272D]" fill="currentColor" viewBox="0 0 24 24">
+            <button 
+              @click="viewMode = 'grid'"
+              :class="[
+                'p-2 rounded transition-colors',
+                viewMode === 'grid' 
+                  ? 'bg-[#C1272D] bg-opacity-10' 
+                  : 'hover:bg-gray-100'
+              ]"
+              title="Vista en cuadrícula"
+              aria-label="Cambiar a vista en cuadrícula"
+            >
+              <svg 
+                :class="[
+                  'w-5 h-5',
+                  viewMode === 'grid' ? 'text-[#C1272D]' : 'text-gray-400'
+                ]" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/>
               </svg>
             </button>
-            <button class="p-2 rounded hover:bg-gray-100 transition-colors" title="Vista en lista">
-              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <button 
+              @click="viewMode = 'list'"
+              :class="[
+                'p-2 rounded transition-colors',
+                viewMode === 'list' 
+                  ? 'bg-[#C1272D] bg-opacity-10' 
+                  : 'hover:bg-gray-100'
+              ]"
+              title="Vista en lista"
+              aria-label="Cambiar a vista en lista"
+            >
+              <svg 
+                :class="[
+                  'w-5 h-5',
+                  viewMode === 'list' ? 'text-[#C1272D]' : 'text-gray-400'
+                ]" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
               </svg>
             </button>
@@ -99,6 +133,88 @@
         </div>
       </div>
     </nav>
+
+    <!-- Filtros para móviles -->
+    <div class="md:hidden bg-white border-b border-gray-200 px-8 py-4">
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <div class="flex items-center gap-3 flex-1">
+          <label for="mobile-language-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+            Idioma:
+          </label>
+          <select 
+            id="mobile-language-filter"
+            v-model="selectedLanguage"
+            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+          >
+            <option value="">Todos ({{ movies.length }})</option>
+            <option v-for="language in availableLanguages" :key="language" :value="language">
+              {{ language }} ({{ getLanguageCount(language) }})
+            </option>
+          </select>
+          <button
+            v-if="selectedLanguage"
+            @click="selectedLanguage = ''"
+            class="p-2 text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
+            aria-label="Limpiar filtro"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Botones de vista para móviles -->
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-gray-700">Vista:</span>
+        <div class="flex items-center gap-1">
+          <button 
+            @click="viewMode = 'grid'"
+            :class="[
+              'p-2 rounded transition-colors',
+              viewMode === 'grid' 
+                ? 'bg-[#C1272D] bg-opacity-10' 
+                : 'hover:bg-gray-100'
+            ]"
+            title="Vista en cuadrícula"
+            aria-label="Cambiar a vista en cuadrícula"
+          >
+            <svg 
+              :class="[
+                'w-4 h-4',
+                viewMode === 'grid' ? 'text-[#C1272D]' : 'text-gray-400'
+              ]" 
+              fill="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/>
+            </svg>
+          </button>
+          <button 
+            @click="viewMode = 'list'"
+            :class="[
+              'p-2 rounded transition-colors',
+              viewMode === 'list' 
+                ? 'bg-[#C1272D] bg-opacity-10' 
+                : 'hover:bg-gray-100'
+            ]"
+            title="Vista en lista"
+            aria-label="Cambiar a vista en lista"
+          >
+            <svg 
+              :class="[
+                'w-4 h-4',
+                viewMode === 'list' ? 'text-[#C1272D]' : 'text-gray-400'
+              ]" 
+              fill="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
 
     <main 
@@ -110,36 +226,59 @@
       <div class="flex items-center justify-between mb-8">
         <div>
           <h2 class="text-3xl font-bold text-gray-900 mb-2">
-            {{ tabs.find(t => t.id === activeTab)?.label }}
+            {{ tabs.find((t: any) => t.id === activeTab)?.label }}
           </h2>
           <p class="text-gray-500">
             {{ filteredMovies.length }} película{{ filteredMovies.length !== 1 ? 's' : '' }} disponible{{ filteredMovies.length !== 1 ? 's' : '' }}
+            <span v-if="selectedLanguage" class="text-[#C1272D] font-medium">
+              • Filtrando por {{ selectedLanguage }}
+            </span>
           </p>
         </div>
         
 
         <div class="hidden md:flex items-center gap-4">
-          <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent">
-            <option>Todos los idiomas</option>
-            <option>Español</option>
-            <option>Inglés</option>
-            <option>Italiano</option>
-            <option>Francés</option>
-            <option>Portugués</option>
+          <select 
+            v-model="selectedLanguage"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+            aria-label="Filtrar películas por idioma"
+          >
+            <option value="">Todos los idiomas ({{ movies.length }})</option>
+            <option v-for="language in availableLanguages" :key="language" :value="language">
+              {{ language }} ({{ getLanguageCount(language) }})
+            </option>
           </select>
+          
+          <!-- Botón para limpiar filtro -->
+          <button
+            v-if="selectedLanguage"
+            @click="selectedLanguage = ''"
+            class="px-3 py-2 text-sm text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
+            aria-label="Limpiar filtro de idioma"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
       </div>
 
 
       <div 
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        :class="[
+          'transition-all duration-300',
+          viewMode === 'grid' 
+            ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'
+            : 'space-y-4'
+        ]"
         role="list"
-        :aria-label="`Películas en ${tabs.find(t => t.id === activeTab)?.label}`"
+        :aria-label="`Películas en ${tabs.find((t: any) => t.id === activeTab)?.label}`"
       >
         <Movie 
           v-for="movie in filteredMovies" 
           :key="movie.id"
           :movie="movie"
+          :view-mode="viewMode"
           @view-details="handleViewDetails"
         />
       </div>
@@ -152,10 +291,24 @@
         aria-live="polite"
       >
         <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 001 1v14a1 1 0 001 1z"/>
         </svg>
-        <p class="text-gray-500 text-lg font-medium mb-2">No hay películas disponibles</p>
-        <p class="text-gray-400 text-sm">Vuelve pronto para ver las próximas funciones</p>
+        <p class="text-gray-500 text-lg font-medium mb-2">
+          {{ selectedLanguage ? `No hay películas en ${selectedLanguage}` : 'No hay películas disponibles' }}
+        </p>
+        <p class="text-gray-400 text-sm mb-4">
+          {{ selectedLanguage ? 'Prueba seleccionando otro idioma o ver todas las películas' : 'Vuelve pronto para ver las próximas funciones' }}
+        </p>
+        <button
+          v-if="selectedLanguage"
+          @click="selectedLanguage = ''"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-[#C1272D] text-white rounded-lg hover:bg-[#8B1F23] transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Ver todas las películas
+        </button>
       </div>
     </main>
   </div>
@@ -176,7 +329,8 @@ const tabs = [
 ]
 
 const activeTab = ref('billboard')
-
+const selectedLanguage = ref('')
+const viewMode = ref<'grid' | 'list'>('grid')
 
 const movies = ref<MovieType[]>([
   {
@@ -253,10 +407,31 @@ const movies = ref<MovieType[]>([
   }
 ])
 
+// Computed property para obtener idiomas únicos disponibles con conteos
+const availableLanguages = computed(() => {
+  const languageCounts: { [key: string]: number } = {}
+  movies.value.forEach(movie => {
+    if (movie.idioma) {
+      languageCounts[movie.idioma] = (languageCounts[movie.idioma] || 0) + 1
+    }
+  })
+  return Object.keys(languageCounts).sort()
+})
+
+// Función para obtener el conteo de películas por idioma
+const getLanguageCount = (language: string) => {
+  return movies.value.filter(movie => movie.idioma === language).length
+}
 
 const filteredMovies = computed(() => {
+  let filtered = movies.value
 
-  return movies.value
+  // Filtrar por idioma si se ha seleccionado uno
+  if (selectedLanguage.value) {
+    filtered = filtered.filter(movie => movie.idioma === selectedLanguage.value)
+  }
+
+  return filtered
 })
 
 

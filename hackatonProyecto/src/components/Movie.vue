@@ -1,5 +1,7 @@
 <template>
+  <!-- Vista en Cuadrícula (Grid) -->
   <article 
+    v-if="currentViewMode === 'grid'"
     class="movie-card group relative overflow-hidden rounded-lg shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white focus-within:ring-2 focus-within:ring-[#C1272D] focus-within:ring-offset-2"
     role="article"
     :aria-label="`Película: ${movie.nombre}. ${movie.descripcion || ''}. Idioma: ${movie.idioma || 'No especificado'}`"
@@ -95,6 +97,99 @@
       </div>
     </div>
   </article>
+
+  <!-- Vista en Lista (List) -->
+  <article 
+    v-else
+    class="movie-card group flex overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-white border border-gray-200 hover:border-[#C1272D] focus-within:ring-2 focus-within:ring-[#C1272D] focus-within:ring-offset-2"
+    role="article"
+    :aria-label="`Película: ${movie.nombre}. ${movie.descripcion || ''}. Idioma: ${movie.idioma || 'No especificado'}`"
+    tabindex="0"
+    @click="$emit('view-details', movie)"
+    @keydown.enter="$emit('view-details', movie)"
+    @keydown.space.prevent="$emit('view-details', movie)"
+  >
+    <!-- Imagen del póster -->
+    <div class="relative w-32 sm:w-40 flex-shrink-0 overflow-hidden bg-gray-100">
+      <img 
+        :src="displayPoster" 
+        :alt="`Póster de la película ${movie.nombre}`"
+        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        @error="handleImageError"
+        loading="lazy"
+      />
+      
+      <div 
+        v-if="isNewRelease" 
+        class="absolute top-2 left-2 bg-[#C1272D] text-white font-bold px-2 py-1 rounded text-xs flex items-center gap-1 shadow"
+        role="status"
+        aria-label="Película en estreno"
+      >
+        <StarIcon class="w-3 h-3" aria-hidden="true" />
+        <span>Estreno</span>
+      </div>
+    </div>
+
+    <!-- Contenido de la información -->
+    <div class="flex-1 p-6 flex flex-col justify-between">
+      <div>
+        <!-- Título y badges -->
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-xl font-bold text-gray-900 leading-tight flex-1 mr-4 group-hover:text-[#C1272D] transition-colors">
+            {{ movie.nombre }}
+          </h3>
+          <div class="flex flex-col gap-2 items-end">
+            <span 
+              v-if="movie.idioma"
+              class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+            >
+              {{ movie.idioma }}
+            </span>
+            <span 
+              v-if="movie.sala_id"
+              class="bg-[#C1272D] text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+            >
+              Sala {{ getSalaNumber(movie.sala_id) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <p 
+          v-if="movie.descripcion" 
+          class="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2"
+        >
+          {{ movie.descripcion }}
+        </p>
+      </div>
+
+      <!-- Footer con hora y botón -->
+      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div class="flex items-center gap-4 text-sm">
+          <span class="flex items-center gap-2 text-[#C1272D] font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            {{ formatTime(movie.fecha_hora_proyeccion) }}
+          </span>
+          <span class="text-gray-500">
+            {{ formatDate(movie.fecha_hora_proyeccion) }}
+          </span>
+        </div>
+        
+        <button 
+          class="text-[#C1272D] hover:text-white hover:bg-[#C1272D] font-medium flex items-center gap-2 px-4 py-2 rounded-lg transition-all border border-[#C1272D]"
+          aria-label="Ver detalles de la película"
+          @click.stop="$emit('view-details', movie)"
+        >
+          <span>Reservar</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </article>
 </template>
 
 <script setup lang="ts">
@@ -115,7 +210,11 @@ export interface Movie {
 
 const props = defineProps<{
   movie: Movie
+  viewMode?: 'grid' | 'list'
 }>()
+
+// Usar 'grid' como valor por defecto si no se especifica
+const currentViewMode = computed(() => props.viewMode || 'grid')
 
 
 defineEmits<{
