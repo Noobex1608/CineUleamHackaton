@@ -9,7 +9,7 @@
         <div class="flex items-center">
           <router-link
             to="/"
-            class="flex items-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded"
+            class="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
             aria-label="Ir a página de inicio"
           >
             <img

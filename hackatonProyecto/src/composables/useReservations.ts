@@ -194,10 +194,45 @@ export const useReservations = () => {
     }
   };
 
+  // Función para eliminar una reserva
+  const deleteReservation = async (userId: string, peliculaId: string) => {
+    try {
+      console.log("🗑️ Eliminando reserva:", { userId, peliculaId });
+
+      // Validar que los IDs no estén vacíos
+      if (!userId || !peliculaId) {
+        throw new Error("Faltan datos requeridos para eliminar la reserva");
+      }
+
+      const { data, error } = await supabase
+        .from("reserva")
+        .delete()
+        .eq("usuario_id", userId)
+        .eq("pelicula_id", peliculaId)
+        .select();
+
+      if (error) {
+        console.error("❌ Error eliminando reserva:", error);
+        throw new Error(`Error al eliminar reserva: ${error.message}`);
+      }
+
+      if (!data || data.length === 0) {
+        throw new Error("No se encontró la reserva a eliminar");
+      }
+
+      console.log("✅ Reserva eliminada exitosamente:", data);
+      return data[0];
+    } catch (error: any) {
+      console.error("❌ Error en deleteReservation:", error);
+      throw error;
+    }
+  };
+
   return {
     checkExistingReservation,
     getSeatId,
     checkSeatReservation,
     createReservation,
+    deleteReservation,
   };
 };

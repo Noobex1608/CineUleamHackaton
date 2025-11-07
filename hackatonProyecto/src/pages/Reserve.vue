@@ -32,15 +32,52 @@
       </div>
       
       <!-- Mensaje de ya tiene reserva -->
-      <div v-if="userHasReservation && !loading" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-        <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
-          <div>
-            <p class="font-semibold text-green-800">✅ Ya tienes una reserva para esta película</p>
-            <p class="text-sm text-green-700 mt-1">Tu asiento reservado está marcado en verde. Solo puedes reservar un asiento por película.</p>
+      <div v-if="userHasReservation && !loading" class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-6 mb-6 shadow-md">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-4 flex-1">
+            <!-- Icono de check en círculo -->
+            <div class="shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            
+            <!-- Contenido -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-bold text-green-900">Reserva Confirmada</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Activa
+                </span>
+              </div>
+              <p class="text-sm text-green-800 leading-relaxed mb-3">
+                Tu asiento está reservado y marcado en verde en el mapa. Solo puedes tener una reserva por película.
+              </p>
+              
+              <!-- Información adicional -->
+              <div class="flex items-center gap-2 text-xs text-green-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Recuerda guardar tu ticket de confirmación</span>
+              </div>
+            </div>
           </div>
+          
+          <!-- Botón de eliminar -->
+          <button
+            @click="handleDeleteReservation"
+            :disabled="deletingReservation"
+            class="shrink-0 group relative px-4 py-2.5 bg-white hover:bg-red-50 border-2 border-red-200 hover:border-red-400 disabled:border-red-100 disabled:bg-gray-50 text-red-600 hover:text-red-700 disabled:text-red-300 text-sm font-semibold rounded-lg transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
+            title="Cancelar reserva"
+          >
+            <svg v-if="!deletingReservation" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <div v-else class="w-5 h-5 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+            <span class="hidden sm:inline">{{ deletingReservation ? 'Cancelando...' : 'Cancelar Reserva' }}</span>
+            <span class="sm:hidden">{{ deletingReservation ? '...' : 'Cancelar' }}</span>
+          </button>
         </div>
       </div>
 
@@ -172,6 +209,98 @@
       :ticketData="ticketData"
       @close="handleCloseTicket"
     />
+
+    <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showDeleteConfirm" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <!-- Background overlay with blur -->
+            <Transition
+              enter-active-class="ease-out duration-300"
+              enter-from-class="opacity-0"
+              enter-to-class="opacity-100"
+              leave-active-class="ease-in duration-200"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0"
+            >
+              <div v-if="showDeleteConfirm" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-all" @click="cancelDeleteReservation"></div>
+            </Transition>
+
+            <!-- Center modal -->
+            <Transition
+              enter-active-class="ease-out duration-300"
+              enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enter-to-class="opacity-100 translate-y-0 sm:scale-100"
+              leave-active-class="ease-in duration-200"
+              leave-from-class="opacity-100 translate-y-0 sm:scale-100"
+              leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            >
+              <div v-if="showDeleteConfirm" class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-[101]">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div class="sm:flex sm:items-start">
+                    <!-- Icono de advertencia -->
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-14 sm:w-14">
+                      <svg class="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+                      <h3 class="text-xl font-bold text-gray-900 mb-2" id="modal-title">
+                        Cancelar Reserva
+                      </h3>
+                      <div class="mt-3">
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                          ¿Estás seguro de que deseas cancelar tu reserva para esta película? Esta acción no se puede deshacer.
+                        </p>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+                          <div class="flex">
+                            <div class="flex-shrink-0">
+                              <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                            <div class="ml-3">
+                              <p class="text-sm text-yellow-700">
+                                Tu asiento quedará disponible para otros usuarios inmediatamente.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                  <button
+                    type="button"
+                    @click="confirmDeleteReservation"
+                    class="w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent shadow-sm px-4 py-2.5 bg-red-600 text-base font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Sí, cancelar reserva
+                  </button>
+                  <button
+                    type="button"
+                    @click="cancelDeleteReservation"
+                    class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C1272D] sm:mt-0 sm:w-auto sm:text-sm transition-colors"
+                  >
+                    No, mantener reserva
+                  </button>
+                </div>
+              </div>
+            </Transition>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -187,12 +316,16 @@ import { supabase } from '../lib/supabase'
 const router = useRouter()
 const route = useRoute()
 const { currentUser } = useAuth()
-const { checkExistingReservation, getSeatId, checkSeatReservation, createReservation } = useReservations()
+const { checkExistingReservation, getSeatId, checkSeatReservation, createReservation, deleteReservation } = useReservations()
 const maxSeats = 1
 
 // Intervalo para recarga automática
 let reloadInterval: number | null = null
 let realtimeChannel: any = null
+
+// Estado para eliminar reserva
+const deletingReservation = ref(false)
+const showDeleteConfirm = ref(false)
 
 interface Seat {
   id: string
@@ -553,6 +686,48 @@ const handleCloseTicket = () => {
   loadSeats(false)
 }
 
+// Función para eliminar la reserva del usuario
+const handleDeleteReservation = async () => {
+  if (!currentUser.value?.id) {
+    displayToast('Error', 'No se pudo identificar el usuario', 'error')
+    return
+  }
+
+  // Mostrar modal de confirmación
+  showDeleteConfirm.value = true
+}
+
+const confirmDeleteReservation = async () => {
+  showDeleteConfirm.value = false
+
+  try {
+    deletingReservation.value = true
+
+    // Eliminar la reserva
+    await deleteReservation(currentUser.value!.id, movie.value.id)
+
+    // Actualizar el estado
+    userHasReservation.value = false
+    selectedSeats.value = []
+
+    // Mostrar notificación de éxito
+    displayToast('Reserva Cancelada', 'Tu reserva ha sido cancelada exitosamente.', 'success')
+
+    // Recargar asientos para reflejar el cambio
+    await loadSeats(false)
+
+  } catch (err: any) {
+    console.error('Error al eliminar reserva:', err)
+    displayToast('Error', err.message || 'No se pudo cancelar la reserva. Por favor, intenta de nuevo.', 'error')
+  } finally {
+    deletingReservation.value = false
+  }
+}
+
+const cancelDeleteReservation = () => {
+  showDeleteConfirm.value = false
+}
+
 // Cargar asientos al montar el componente
 onMounted(() => {
   loadSeats() // Primera carga con loading
@@ -593,4 +768,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
 </style>
