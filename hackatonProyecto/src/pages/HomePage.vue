@@ -10,7 +10,7 @@
 
 
     <section 
-      class="relative h-[450px] md:h-[500px] bg-linear-to-r from-[#C1272D] via-[#A12027] to-[#8B1F23] overflow-hidden"
+      class="relative h-[350px] sm:h-[450px] md:h-[500px] lg:h-[600px] bg-gradient-to-r from-[#C1272D] via-[#A12027] to-[#8B1F23] overflow-hidden"
       aria-labelledby="hero-heading"
       role="banner"
     >
@@ -22,28 +22,26 @@
           class="w-full h-full object-cover opacity-25 mix-blend-overlay"
           role="presentation"
         />
->
         <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
       </div>
       
-      <div class="relative z-10 container mx-auto px-8 h-full flex flex-col justify-center">
+      <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
         <div class="max-w-3xl">
-          <h1 id="hero-heading" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight animate-fade-in">
+          <h1 id="hero-heading" class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 sm:mb-6 leading-tight animate-fade-in">
             {{ welcomeTitle }}
           </h1>
-          <p class="text-2xl md:text-3xl lg:text-4xl text-white font-light mb-8 animate-fade-in-delay">
+          <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white font-light mb-6 sm:mb-8 animate-fade-in-delay">
             {{ welcomeSubtitle }}
           </p>
-          <div class="flex gap-4 animate-fade-in-delay-2">
-
+          <div class="flex gap-2 sm:gap-4 animate-fade-in-delay-2">
 
           </div>
         </div>
       </div>
       
 
-      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <svg class="w-6 h-6 text-white opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
         </svg>
       </div>
@@ -51,18 +49,19 @@
 
 
     <nav 
-      class="bg-white border-b border-gray-200 sticky top-20 z-20 shadow-sm" 
+      class="bg-white border-b border-gray-200 sticky top-16 sm:top-20 z-20 shadow-sm" 
       aria-label="Filtros de películas"
       role="navigation"
     >
-      <div class="container mx-auto px-8">
-        <div class="flex items-center justify-between py-4">
-          <div class="flex items-center gap-8" role="tablist">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between py-3 sm:py-4">
+          <!-- Tabs responsivas -->
+          <div class="flex items-center gap-2 sm:gap-4 lg:gap-8 overflow-x-auto scrollbar-hide" role="tablist">
             <button 
               v-for="tab in tabs" 
               :key="tab.id"
               @click="activeTab = tab.id"
-              class="text-gray-700 font-semibold pb-2 transition-all relative focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded px-3 py-2"
+              class="text-gray-700 font-semibold pb-2 transition-all relative focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded px-2 sm:px-3 py-2 whitespace-nowrap text-sm sm:text-base"
               :class="activeTab === tab.id ? 'text-[#C1272D]' : 'text-gray-500 hover:text-gray-700'"
               role="tab"
               :aria-selected="activeTab === tab.id"
@@ -80,11 +79,11 @@
           
 
           <div class="hidden md:flex items-center gap-2">
-            <span class="text-sm text-gray-500 mr-2">Vista:</span>
+            <span class="text-xs lg:text-sm text-gray-500 mr-2">Vista:</span>
             <button 
               @click="viewMode = 'grid'"
               :class="[
-                'p-2 rounded transition-colors',
+                'p-1.5 lg:p-2 rounded transition-colors',
                 viewMode === 'grid' 
                   ? 'bg-red-100' 
                   : 'hover:bg-gray-100'
@@ -94,7 +93,7 @@
             >
               <svg 
                 :class="[
-                  'w-5 h-5',
+                  'w-4 h-4 lg:w-5 lg:h-5',
                   viewMode === 'grid' ? 'text-[#C1272D]' : 'text-gray-400'
                 ]" 
                 fill="currentColor" 
@@ -106,7 +105,7 @@
             <button 
               @click="viewMode = 'list'"
               :class="[
-                'p-2 rounded transition-colors',
+                'p-1.5 lg:p-2 rounded transition-colors',
                 viewMode === 'list' 
                   ? 'bg-red-100' 
                   : 'hover:bg-gray-100'
@@ -116,7 +115,7 @@
             >
               <svg 
                 :class="[
-                  'w-5 h-5',
+                  'w-4 h-4 lg:w-5 lg:h-5',
                   viewMode === 'list' ? 'text-[#C1272D]' : 'text-gray-400'
                 ]" 
                 fill="currentColor" 
@@ -131,16 +130,16 @@
     </nav>
 
     <!-- Filtros para móviles -->
-    <div class="md:hidden bg-white border-b border-gray-200 px-8 py-4">
+    <div class="md:hidden bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
       <div class="flex items-center justify-between gap-3 mb-3">
-        <div class="flex items-center gap-3 flex-1">
-          <label for="mobile-language-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+        <div class="flex items-center gap-2 sm:gap-3 flex-1">
+          <label for="mobile-language-filter" class="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
             Idioma:
           </label>
           <select 
             id="mobile-language-filter"
             v-model="selectedLanguage"
-            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+            class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
           >
             <option value="">Todos ({{ movies.length }})</option>
             <option v-for="language in availableLanguages" :key="language" :value="language">
@@ -150,10 +149,10 @@
           <button
             v-if="selectedLanguage"
             @click="selectedLanguage = ''"
-            class="p-2 text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
+            class="p-1.5 sm:p-2 text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
             aria-label="Limpiar filtro"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -162,12 +161,12 @@
       
       <!-- Botones de vista para móviles -->
       <div class="flex items-center justify-between">
-        <span class="text-sm font-medium text-gray-700">Vista:</span>
+        <span class="text-xs sm:text-sm font-medium text-gray-700">Vista:</span>
         <div class="flex items-center gap-1">
           <button 
             @click="viewMode = 'grid'"
             :class="[
-              'p-2 rounded transition-colors',
+              'p-1.5 sm:p-2 rounded transition-colors',
               viewMode === 'grid' 
                 ? 'bg-red-100' 
                 : 'hover:bg-gray-100'
@@ -177,7 +176,7 @@
           >
             <svg 
               :class="[
-                'w-4 h-4',
+                'w-3 h-3 sm:w-4 sm:h-4',
                 viewMode === 'grid' ? 'text-[#C1272D]' : 'text-gray-400'
               ]" 
               fill="currentColor" 
@@ -189,7 +188,7 @@
           <button 
             @click="viewMode = 'list'"
             :class="[
-              'p-2 rounded transition-colors',
+              'p-1.5 sm:p-2 rounded transition-colors',
               viewMode === 'list' 
                 ? 'bg-red-100' 
                 : 'hover:bg-gray-100'
@@ -199,7 +198,7 @@
           >
             <svg 
               :class="[
-                'w-4 h-4',
+                'w-3 h-3 sm:w-4 sm:h-4',
                 viewMode === 'list' ? 'text-[#C1272D]' : 'text-gray-400'
               ]" 
               fill="currentColor" 
@@ -215,7 +214,7 @@
 
     <main 
       id="cartelera"
-      class="container mx-auto px-8 mt-10 pb-16 grow"
+      class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-10 pb-12 sm:pb-16 grow"
       role="main"
     >
       <!-- Estado de carga -->
@@ -256,12 +255,12 @@
 
       <!-- Contenido principal -->
       <template v-else>
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               {{ tabs.find((t: any) => t.id === activeTab)?.label }}
             </h2>
-            <p class="text-gray-500">
+            <p class="text-sm sm:text-base text-gray-500">
               {{ filteredMovies.length }} película{{ filteredMovies.length !== 1 ? 's' : '' }} disponible{{ filteredMovies.length !== 1 ? 's' : '' }}
               <span v-if="selectedLanguage" class="text-[#C1272D] font-medium">
                 • Filtrando por {{ selectedLanguage }}
@@ -270,10 +269,10 @@
           </div>
         
 
-        <div class="hidden md:flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-3 lg:gap-4">
           <select 
             v-model="selectedLanguage"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
+            class="px-3 lg:px-4 py-2 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1272D] focus:border-transparent"
             aria-label="Filtrar películas por idioma"
           >
             <option value="">Todos los idiomas ({{ movies.length }})</option>
@@ -286,10 +285,10 @@
           <button
             v-if="selectedLanguage"
             @click="selectedLanguage = ''"
-            class="px-3 py-2 text-sm text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
+            class="px-2 lg:px-3 py-2 text-sm text-gray-600 hover:text-[#C1272D] border border-gray-300 rounded-lg hover:border-[#C1272D] transition-colors"
             aria-label="Limpiar filtro de idioma"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -301,8 +300,8 @@
         :class="[
           'transition-all duration-300',
           viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'
-            : 'space-y-4'
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+            : 'space-y-3 sm:space-y-4'
         ]"
         role="list"
         :aria-label="`Películas en ${tabs.find((t: any) => t.id === activeTab)?.label}`"
@@ -319,23 +318,23 @@
 
       <div 
         v-if="filteredMovies.length === 0" 
-        class="text-center py-20"
+        class="text-center py-12 sm:py-20"
         role="status"
         aria-live="polite"
       >
-        <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-16 h-16 sm:w-24 sm:h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 001 1v14a1 1 0 001 1z"/>
         </svg>
-        <p class="text-gray-500 text-lg font-medium mb-2">
+        <p class="text-gray-500 text-base sm:text-lg font-medium mb-2">
           {{ selectedLanguage ? `No hay películas en ${selectedLanguage}` : 'No hay películas disponibles' }}
         </p>
-        <p class="text-gray-400 text-sm mb-4">
+        <p class="text-gray-400 text-sm mb-4 px-4">
           {{ selectedLanguage ? 'Prueba seleccionando otro idioma o ver todas las películas' : 'Vuelve pronto para ver las próximas funciones' }}
         </p>
         <button
           v-if="selectedLanguage"
           @click="selectedLanguage = ''"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-[#C1272D] text-white rounded-lg hover:bg-[#8B1F23] transition-colors"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-[#C1272D] text-white text-sm sm:text-base rounded-lg hover:bg-[#8B1F23] transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -519,6 +518,15 @@ const handleViewDetails = (movie: MovieType) => {
   animation: fade-in 0.8s ease-out 0.4s both;
 }
 
+/* Ocultar scrollbar en navegadores webkit */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,

@@ -4,8 +4,8 @@
     role="navigation"
     aria-label="Navegación principal"
   >
-    <div class="container mx-auto px-8">
-      <div class="flex items-center justify-between h-20">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
         <div class="flex items-center">
           <router-link
             to="/"
@@ -15,13 +15,13 @@
             <img
               src="../assets/LOGO-ULEAM-VERTICAL.png"
               alt="Logo Universidad Laica Eloy Alfaro de Manabí"
-              class="h-23 w-fit"
+              class="h-14 sm:h-20 w-auto"
               id="logo-navbar"
             />
           </router-link>
         </div>
 
-        <div class="hidden md:flex items-center gap-4" role="menubar">
+        <div class="hidden md:flex items-center gap-2 lg:gap-4" role="menubar">
 
 
           <!-- Enlace para volver al inicio si estamos en la página de admin -->
@@ -61,17 +61,21 @@
           </router-link>
 
           <!-- Mostrar info del usuario si está autenticado -->
-          <div v-if="isAuthenticated" class="flex items-center gap-3">
-            <span class="text-sm text-gray-600">
+          <div v-if="isAuthenticated" class="flex items-center gap-2 lg:gap-3">
+            <span class="text-xs lg:text-sm text-gray-600 hidden lg:block">
               Hola, {{ currentUser?.nombre }}
+            </span>
+            <span class="text-xs text-gray-600 lg:hidden">
+              {{ currentUser?.nombre?.split(' ')[0] }}
             </span>
             <button
               @click="handleLogout"
-              class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
+              class="text-gray-700 text-xs lg:text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1 lg:gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-1 lg:px-2 py-1"
               aria-label="Cerrar sesión"
             >
               <ArrowRightOnRectangleIcon class="w-4 h-4" aria-hidden="true" />
-              <span>Cerrar Sesión</span>
+              <span class="hidden lg:inline">Cerrar Sesión</span>
+              <span class="lg:hidden">Salir</span>
             </button>
           </div>
 
@@ -80,23 +84,25 @@
             <router-link
               v-if="!isLoginPage"
               to="/login"
-              class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
+              class="text-gray-700 text-xs lg:text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1 lg:gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-1 lg:px-2 py-1"
               role="menuitem"
               aria-label="Iniciar sesión en tu cuenta"
             >
               <ArrowRightOnRectangleIcon class="w-4 h-4" aria-hidden="true" />
-              <span>Iniciar Sesión</span>
+              <span class="hidden sm:inline">Iniciar Sesión</span>
+              <span class="sm:hidden">Login</span>
             </router-link>
 
             <router-link
               v-if="!isRegisterPage"
               to="/registro"
-              class="bg-[#C1272D] hover:bg-[#8B1F23] text-white text-sm font-medium px-5 py-2 rounded transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
+              class="bg-[#C1272D] hover:bg-[#8B1F23] text-white text-xs lg:text-sm font-medium px-3 lg:px-5 py-2 rounded transition-colors duration-200 flex items-center gap-1 lg:gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B1F23] focus:ring-offset-2"
               role="menuitem"
               aria-label="Crear cuenta nueva"
             >
               <UserPlusIcon class="w-4 h-4" aria-hidden="true" />
-              <span>Registro</span>
+              <span class="hidden sm:inline">Registro</span>
+              <span class="sm:hidden">+</span>
             </router-link>
           </template>
         </div>
