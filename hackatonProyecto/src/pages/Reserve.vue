@@ -134,12 +134,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Ticket Modal -->
+    <TicketModal 
+      :show="showTicketModal" 
+      :ticketData="ticketData"
+      @close="handleCloseTicket"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import TicketModal from '../components/TicketModal.vue'
 import { useAuth } from '../composables/useAuth'
 import { supabase } from '../lib/supabase'
 
@@ -160,11 +168,35 @@ interface SeatRow {
   seats: Seat[]
 }
 
+interface TicketData {
+  reservationId: string
+  movieName: string
+  movieLanguage: string
+  dateTime: string
+  salaName: string
+  seatRow: string
+  seatNumber: number
+  userName: string
+  userEmail: string
+}
+
 const selectedSeats = ref<Seat[]>([])
 const seatRows = ref<SeatRow[]>([])
 const rightSeatRows = ref<SeatRow[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+const showTicketModal = ref(false)
+const ticketData = ref<TicketData>({
+  reservationId: '',
+  movieName: '',
+  movieLanguage: '',
+  dateTime: '',
+  salaName: '',
+  seatRow: '',
+  seatNumber: 0,
+  userName: '',
+  userEmail: ''
+})
 
 // Obtener los datos de la película de los parámetros de la ruta
 const movie = computed(() => {
@@ -366,25 +398,53 @@ const confirmReservation = async () => {
     }
 
     // 4. Crear la reserva en la base de datos
-    const { error: insertError } = await supabase
+    const { data: nuevaReserva, error: insertError } = await supabase
       .from('reserva')
       .insert({
         usuario_id: currentUser.value?.id,
         pelicula_id: movie.value.id,
         asiento_id: asientoId
       })
-      .select()
+      .select('id')
+      .single()
 
     if (insertError) throw insertError
+    if (!nuevaReserva) throw new Error('No se pudo crear la reserva')
 
-    alert(`¡Reserva confirmada! 🎉\nAsiento: ${selectedSeat.row}${selectedSeat.number}\nPelícula: ${movie.value.nombre}`)
-    router.push('/')
+    // 5. Obtener el nombre de la sala
+    const { data: salaData } = await supabase
+      .from('sala')
+      .select('nombre')
+      .eq('id', movie.value.sala_id)
+      .single()
+
+    // 6. Preparar datos del ticket
+    ticketData.value = {
+      reservationId: nuevaReserva.id,
+      movieName: movie.value.nombre,
+      movieLanguage: movie.value.idioma || 'N/A',
+      dateTime: movie.value.fecha_hora_proyeccion,
+      salaName: salaData?.nombre || 'Sala 1',
+      seatRow: selectedSeat.row,
+      seatNumber: selectedSeat.number,
+      userName: currentUser.value?.nombre || 'Usuario',
+      userEmail: currentUser.value?.correo_institucional || ''
+    }
+
+    // 7. Mostrar el modal del ticket
+    showTicketModal.value = true
+
   } catch (err: any) {
     console.error('Error al crear reserva:', err)
     alert('Error al crear la reserva. Por favor, intenta de nuevo.')
   } finally {
     loading.value = false
   }
+}
+
+const handleCloseTicket = () => {
+  showTicketModal.value = false
+  router.push('/')
 }
 
 // Cargar asientos al montar el componente
