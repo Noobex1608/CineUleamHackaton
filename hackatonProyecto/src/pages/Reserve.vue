@@ -23,7 +23,12 @@
       <!-- Información de la película -->
       <div v-if="movie" class="bg-gray-50 rounded-lg p-4 mb-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
-        <p class="text-gray-600 text-sm">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+        <div class="flex items-center gap-4 text-sm text-gray-600">
+          <p>{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+          <p v-if="movie.sala?.nombre" class="bg-[#C1272D] text-white px-2 py-1 rounded text-xs font-medium">
+            {{ movie.sala.nombre }}
+          </p>
+        </div>
       </div>
       
       <!-- Mensaje de ya tiene reserva -->
@@ -493,42 +498,34 @@ const confirmReservation = async () => {
     }
 
     // 4. Crear la reserva en la base de datos
-    const nuevaReserva = await createReservation({
-      usuario_id: currentUser.value?.id || '',
-      pelicula_id: movie.value.id,
-      asiento_id: asientoId
-      // fecha_creacion se genera automáticamente en la base de datos
-    })
-    
-    if (!nuevaReserva) throw new Error('No se pudo crear la reserva')
+        const nuevaReserva = await createReservation({
+          usuario_id: currentUser.value?.id || '',
+          pelicula_id: movie.value.id,
+          asiento_id: asientoId
+        })
+        
+        if (!nuevaReserva) throw new Error('No se pudo crear la reserva')
 
-    // 5. Obtener el nombre de la sala
-    const { data: salaData } = await supabase
-      .from('sala')
-      .select('nombre')
-      .eq('id', movie.value.sala_id)
-      .single()
-
-    // 6. Preparar datos del ticket
+    // 5. Preparar datos del ticket (usar información de sala que ya viene con la película)
     ticketData.value = {
       reservationId: nuevaReserva.id,
       movieName: movie.value.nombre,
       movieLanguage: movie.value.idioma || 'N/A',
       dateTime: movie.value.fecha_hora_proyeccion,
-      salaName: salaData?.nombre || 'Sala 1',
+      salaName: movie.value.sala?.nombre || 'Sala no especificada',
       seatRow: selectedSeat.row,
       seatNumber: selectedSeat.number,
       userName: currentUser.value?.nombre || 'Usuario',
       userEmail: currentUser.value?.correo_institucional || ''
     }
 
-    // 7. Limpiar selección y recargar asientos para mostrar el asiento como ocupado
+    // 6. Limpiar selección y recargar asientos para mostrar el asiento como ocupado
     selectedSeats.value = []
     
-    // 8. Mostrar el modal del ticket
+    // 7. Mostrar el modal del ticket
     showTicketModal.value = true
     
-    // 9. Recargar asientos en segundo plano para reflejar la nueva reserva
+    // 8. Recargar asientos en segundo plano para reflejar la nueva reserva
     // (sin bloquear el modal del ticket y sin mostrar loading)
     loadSeats(false).catch(err => console.error('Error al recargar asientos:', err))
 
