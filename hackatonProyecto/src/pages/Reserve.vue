@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white py-4 sm:py-6 lg:py-8 px-4">
+  <div class="min-h-screen bg-white py-8 px-4">
     <!-- Toast Notification -->
     <Toast
       :show="showToast"
@@ -11,46 +11,43 @@
     
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
-      <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div class="flex items-center gap-4 mb-8">
         <button @click="goBack" class="text-gray-800 hover:text-[#C1272D] transition-colors">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
-          <span class="hidden sm:inline">Selecciona tus asientos</span>
-          <span class="sm:hidden">Seleccionar asientos</span>
-        </h1>
+        <h1 class="text-2xl font-bold text-gray-800">Selecciona tus asientos</h1>
       </div>
 
       <!-- Información de la película -->
-      <div v-if="movie" class="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-        <h2 class="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{{ movie.nombre }}</h2>
-        <p class="text-gray-600 text-xs sm:text-sm">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+      <div v-if="movie" class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
+        <p class="text-gray-600 text-sm">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
       </div>
       
       <!-- Mensaje de ya tiene reserva -->
-      <div v-if="userHasReservation && !loading" class="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-        <div class="flex items-start gap-2 sm:gap-3">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+      <div v-if="userHasReservation && !loading" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           <div>
-            <p class="font-semibold text-green-800 text-sm sm:text-base">✅ Ya tienes una reserva para esta película</p>
-            <p class="text-xs sm:text-sm text-green-700 mt-1">Tu asiento reservado está marcado en verde. Solo puedes reservar un asiento por película.</p>
+            <p class="font-semibold text-green-800">✅ Ya tienes una reserva para esta película</p>
+            <p class="text-sm text-green-700 mt-1">Tu asiento reservado está marcado en verde. Solo puedes reservar un asiento por película.</p>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12 sm:py-20">
-        <div class="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-[#C1272D]"></div>
+      <div v-if="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-[#C1272D]"></div>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-        <p class="text-red-600 text-sm sm:text-base">{{ error }}</p>
-        <button @click="() => loadSeats()" class="mt-2 text-xs sm:text-sm text-red-700 hover:text-red-800 underline">
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <p class="text-red-600">{{ error }}</p>
+        <button @click="() => loadSeats()" class="mt-2 text-sm text-red-700 hover:text-red-800 underline">
           Intentar de nuevo
         </button>
       </div>
@@ -58,41 +55,41 @@
       <!-- Seats Content -->
       <div v-else>
         <!-- Progress bars -->
-        <div class="flex gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <div class="flex-1 bg-[#C1272D] h-1.5 sm:h-2 rounded"></div>
-          <div class="flex-1 bg-gray-300 h-1.5 sm:h-2 rounded"></div>
+        <div class="flex gap-4 mb-8">
+          <div class="flex-1 bg-[#C1272D] h-2 rounded"></div>
+          <div class="flex-1 bg-gray-300 h-2 rounded"></div>
         </div>
 
         <!-- Seat selection area -->
-        <div class="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8 shadow-sm">
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
           <!-- Counter and Legend -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
-            <div class="text-base sm:text-lg font-semibold text-gray-800 text-center sm:text-left">
+          <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div class="text-lg font-semibold text-gray-800">
               <span class="text-[#C1272D]">{{ selectedSeats.length }}</span> / {{ maxSeats }}
             </div>
-            <div class="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm">
-              <div class="flex items-center gap-1 sm:gap-2">
-                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-[#C1272D] rounded"></div>
+            <div class="flex items-center gap-6 text-sm flex-wrap">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-[#C1272D] rounded"></div>
                 <span class="text-gray-700">Reservado</span>
               </div>
-              <div class="flex items-center gap-1 sm:gap-2">
-                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-gray-500 rounded"></div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-gray-500 rounded"></div>
                 <span class="text-gray-700">Disponible</span>
               </div>
-              <div class="flex items-center gap-1 sm:gap-2">
-                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-cyan-500 rounded"></div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-cyan-500 rounded"></div>
                 <span class="text-gray-700">Seleccionado</span>
               </div>
-              <div class="flex items-center gap-1 sm:gap-2">
-                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded"></div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-green-600 rounded"></div>
                 <span class="text-gray-700">Mi Reserva</span>
               </div>
             </div>
           </div>
 
           <!-- Screen -->
-          <div class="mb-6 sm:mb-8">
-            <div class="w-full max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto mb-8 sm:mb-12">
+          <div class="mb-8">
+            <div class="w-full max-w-3xl mx-auto mb-12">
               <svg viewBox="0 0 800 60" class="w-full" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -103,49 +100,47 @@
                 </defs>
                 <path d="M 50 40 Q 400 10, 750 40" stroke="url(#screenGradient)" stroke-width="3" fill="none"/>
               </svg>
-                <p class="text-center text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Pantalla</p>
+              <p class="text-center text-sm text-gray-500 mt-2">Pantalla</p>
             </div>
 
             <!-- Seats Grid -->
-            <div class="max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto overflow-x-auto">
-              <div class="flex justify-center gap-4 sm:gap-6 lg:gap-8 min-w-max">
+            <div class="max-w-4xl mx-auto">
+              <div class="flex justify-center gap-8">
                 <!-- Left Section -->
-                <div class="space-y-2 sm:space-y-3">
-                  <div v-for="row in seatRows" :key="row.label" class="flex items-center gap-1 sm:gap-2">
-                    <span class="text-xs text-gray-500 w-4 sm:w-6 text-right font-medium">{{ row.label }}</span>
-                    <div class="flex gap-1 sm:gap-2">
+                <div class="space-y-3">
+                  <div v-for="row in seatRows" :key="row.label" class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500 w-6 text-right font-medium">{{ row.label }}</span>
+                    <div class="flex gap-2">
                       <button
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
                         :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
-                        class="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        <span class="hidden sm:inline">{{ seat.number }}</span>
-                        <span class="sm:hidden text-xs">{{ seat.number > 9 ? seat.number.toString().slice(-1) : seat.number }}</span>
+                        {{ seat.number }}
                       </button>
                     </div>
                   </div>
                 </div>
 
                 <!-- Right Section -->
-                <div v-if="rightSeatRows.length > 0" class="space-y-2 sm:space-y-3 ml-4 sm:ml-6 lg:ml-8">
-                  <div v-for="row in rightSeatRows" :key="row.label" class="flex items-center gap-1 sm:gap-2">
-                    <div class="flex gap-1 sm:gap-2">
+                <div v-if="rightSeatRows.length > 0" class="space-y-3 ml-8">
+                  <div v-for="row in rightSeatRows" :key="row.label" class="flex items-center gap-2">
+                    <div class="flex gap-2">
                       <button
                         v-for="seat in row.seats"
                         :key="seat.id"
                         @click="toggleSeat(seat)"
                         :disabled="seat.status === 'reserved' || seat.status === 'my-reservation'"
                         :class="getSeatClass(seat)"
-                        class="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        <span class="hidden sm:inline">{{ seat.number }}</span>
-                        <span class="sm:hidden text-xs">{{ seat.number > 9 ? seat.number.toString().slice(-1) : seat.number }}</span>
+                        {{ seat.number }}
                       </button>
                     </div>
-                    <span class="text-xs text-gray-500 w-4 sm:w-6 font-medium">{{ row.label }}</span>
+                    <span class="text-xs text-gray-500 w-6 font-medium">{{ row.label }}</span>
                   </div>
                 </div>
               </div>
@@ -154,14 +149,13 @@
         </div>
 
         <!-- Confirm Button -->
-        <div class="flex justify-center px-4">
+        <div class="flex justify-center">
           <button
             @click="confirmReservation"
             :disabled="selectedSeats.length === 0 || loading"
-            class="w-full sm:w-auto bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-8 sm:px-12 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 text-sm sm:text-base"
+            class="bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-12 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
           >
-            <span class="hidden sm:inline">{{ loading ? 'Procesando...' : 'Continuar con la reserva' }}</span>
-            <span class="sm:hidden">{{ loading ? 'Procesando...' : 'Confirmar reserva' }}</span>
+            {{ loading ? 'Procesando...' : 'Continuar con la reserva' }}
           </button>
         </div>
       </div>
@@ -182,11 +176,13 @@ import { useRoute, useRouter } from 'vue-router'
 import TicketModal from '../components/TicketModal.vue'
 import Toast from '../components/Toast.vue'
 import { useAuth } from '../composables/useAuth'
+import { useReservations } from '../composables/useReservations'
 import { supabase } from '../lib/supabase'
 
 const router = useRouter()
 const route = useRoute()
 const { currentUser } = useAuth()
+const { checkExistingReservation, getSeatId, checkSeatReservation, createReservation } = useReservations()
 const maxSeats = 1
 
 // Intervalo para recarga automática
@@ -455,16 +451,7 @@ const confirmReservation = async () => {
     loading.value = true
 
     // 0. Verificar si el usuario ya tiene una reserva para esta película
-    const { data: reservaUsuario, error: reservaUsuarioError } = await supabase
-      .from('reserva')
-      .select('id')
-      .eq('usuario_id', currentUser.value?.id)
-      .eq('pelicula_id', movie.value.id)
-      .single()
-
-    if (reservaUsuarioError && reservaUsuarioError.code !== 'PGRST116') {
-      throw reservaUsuarioError
-    }
+    const reservaUsuario = await checkExistingReservation(currentUser.value?.id || '', movie.value.id)
 
     if (reservaUsuario) {
       displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
@@ -472,18 +459,8 @@ const confirmReservation = async () => {
     }
 
     // 1. Verificar si el asiento existe en la tabla asiento
-    let { data: asientoExistente, error: asientoCheckError } = await supabase
-      .from('asiento')
-      .select('id')
-      .eq('sala_id', movie.value.sala_id)
-      .eq('fila', selectedSeat.row)
-      .eq('numero', selectedSeat.number)
-      .single()
-
-    if (asientoCheckError && asientoCheckError.code !== 'PGRST116') {
-      throw asientoCheckError
-    }
-
+    let asientoExistente = await getSeatId(movie.value.sala_id, selectedSeat.row, selectedSeat.number)
+    
     let asientoId: string
 
     // 2. Si el asiento no existe, crearlo
@@ -507,16 +484,7 @@ const confirmReservation = async () => {
     }
 
     // 3. Verificar si el asiento ya está reservado para esta película
-    const { data: reservaExistente, error: reservaCheckError } = await supabase
-      .from('reserva')
-      .select('id')
-      .eq('pelicula_id', movie.value.id)
-      .eq('asiento_id', asientoId)
-      .single()
-
-    if (reservaCheckError && reservaCheckError.code !== 'PGRST116') {
-      throw reservaCheckError
-    }
+    const reservaExistente = await checkSeatReservation(movie.value.id, asientoId)
 
     if (reservaExistente) {
       displayToast('Asiento Ocupado', 'Este asiento ya ha sido reservado por otro usuario. Por favor, selecciona otro.', 'warning')
@@ -525,24 +493,12 @@ const confirmReservation = async () => {
     }
 
     // 4. Crear la reserva en la base de datos
-    const { data: nuevaReserva, error: insertError } = await supabase
-      .from('reserva')
-      .insert({
-        usuario_id: currentUser.value?.id,
-        pelicula_id: movie.value.id,
-        asiento_id: asientoId
-      })
-      .select('id')
-      .single()
-
-    if (insertError) {
-      // Manejar error de duplicado
-      if (insertError.code === '23505') {
-        displayToast('Reserva Existente', 'Ya tienes una reserva para esta película. Solo puedes reservar un asiento por película.', 'warning')
-        return
-      }
-      throw insertError
-    }
+    const nuevaReserva = await createReservation({
+      usuario_id: currentUser.value?.id || '',
+      pelicula_id: movie.value.id,
+      asiento_id: asientoId,
+      fecha_reserva: new Date().toISOString()
+    })
     
     if (!nuevaReserva) throw new Error('No se pudo crear la reserva')
 
