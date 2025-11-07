@@ -340,7 +340,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
     idioma: "Inglés",
     fecha_hora_proyeccion: "2024-11-15T19:30:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440011'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440002',
@@ -349,7 +349,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
     idioma: "Inglés",
     fecha_hora_proyeccion: "2024-11-16T20:00:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440012'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440003',
@@ -358,7 +358,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
     idioma: "Español",
     fecha_hora_proyeccion: "2024-11-14T16:00:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440013'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440004',
@@ -367,7 +367,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
     idioma: "Inglés",
     fecha_hora_proyeccion: "2024-11-17T18:30:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440014'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440005',
@@ -376,7 +376,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
     idioma: "Español",
     fecha_hora_proyeccion: "2024-11-15T15:00:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440015'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440006',
@@ -385,7 +385,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/5vUux2vNUTqwCzb7tVcH18XnsF5.jpg",
     idioma: "Inglés",
     fecha_hora_proyeccion: "2024-11-18T21:30:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440016'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440007',
@@ -394,7 +394,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/mGJuQwMq1bEboaVTqQAW9UZZfMo.jpg",
     idioma: "Italiano",
     fecha_hora_proyeccion: "2024-11-16T17:00:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440017'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440008',
@@ -403,7 +403,7 @@ const movies = ref<MovieType[]>([
     url_poster: "https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg",
     idioma: "Francés",
     fecha_hora_proyeccion: "2024-11-19T19:00:00Z",
-    sala_id: '550e8400-e29b-41d4-a716-446655440018'
+    sala_id: '56c73a02-647a-4073-b4cc-72e877ce0fd8'
   }
 ])
 

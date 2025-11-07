@@ -1,279 +1,136 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header con botón de volver -->
-    <div class="bg-white border-b border-gray-200 py-6">
-      <div class="container mx-auto px-8">
-        <button
-          @click="goBack"
-          class="inline-flex items-center gap-2 text-gray-600 hover:text-[#C1272D] transition-colors font-medium"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
+  <div class="min-h-screen bg-white py-8 px-4">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-8">
+        <button @click="goBack" class="text-gray-800 hover:text-[#C1272D] transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Volver a película
+        </button>
+        <h1 class="text-2xl font-bold text-gray-800">Selecciona tus asientos</h1>
+      </div>
+
+      <!-- Información de la película -->
+      <div v-if="movie" class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ movie.nombre }}</h2>
+        <p class="text-gray-600 text-sm">{{ new Date(movie.fecha_hora_proyeccion).toLocaleString('es-ES') }}</p>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-[#C1272D]"></div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <p class="text-red-600">{{ error }}</p>
+        <button @click="loadSeats" class="mt-2 text-sm text-red-700 hover:text-red-800 underline">
+          Intentar de nuevo
         </button>
       </div>
-    </div>
 
-    <div class="container mx-auto px-8 py-12">
-      <!-- Información de la película -->
-      <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-        <div class="flex items-center gap-6">
-          <div class="shrink-0">
-            <img
-              :src="movie?.url_poster"
-              :alt="movie?.nombre"
-              class="w-24 h-36 object-cover rounded-lg shadow-md"
-            />
-          </div>
-          <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-900 mb-3">
-              {{ movie?.nombre }}
-            </h1>
-            <div class="flex flex-wrap gap-3">
-              <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-[#C1272D] text-white rounded-lg text-sm font-medium"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                {{ formatDate(movie?.fecha_hora_proyeccion) }}
-              </span>
-
-              <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                {{ formatTime(movie?.fecha_hora_proyeccion) }}
-              </span>
-
-              <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                  />
-                </svg>
-                Sala {{ getSalaNumber(movie?.sala_id) }}
-              </span>
-
-              <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z"
-                  />
-                </svg>
-                {{ movie?.idioma }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Selección de asientos -->
-      <div class="bg-white rounded-xl shadow-lg p-8">
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900">
-              Selecciona tus asientos
-            </h2>
-            <p class="text-gray-600 mt-1">
-              <span class="text-[#C1272D] font-semibold text-lg">{{
-                selectedSeats.length
-              }}</span>
-              <span class="text-gray-500"> / {{ maxSeats }} asientos seleccionados</span>
-            </p>
-          </div>
-
-          <div class="flex flex-wrap gap-4 text-sm">
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-5 bg-gray-300 rounded border-2 border-gray-400"></div>
-              <span class="text-gray-700 font-medium">Reservado</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-5 bg-gray-100 rounded border-2 border-gray-300"></div>
-              <span class="text-gray-700 font-medium">Disponible</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-5 bg-blue-500 rounded"></div>
-              <span class="text-gray-700 font-medium">Seleccionado</span>
-            </div>
-          </div>
+      <!-- Seats Content -->
+      <div v-else>
+        <!-- Progress bars -->
+        <div class="flex gap-4 mb-8">
+          <div class="flex-1 bg-[#C1272D] h-2 rounded"></div>
+          <div class="flex-1 bg-gray-300 h-2 rounded"></div>
         </div>
 
-        <!-- Pantalla -->
-        <div class="mb-12">
-          <div class="w-full max-w-xl mx-auto mb-8">
-            <div class="relative">
-              <svg
-                viewBox="0 0 400 60"
-                class="w-full"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+        <!-- Seat selection area -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
+          <!-- Counter and Legend -->
+          <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div class="text-lg font-semibold text-gray-800">
+              <span class="text-[#C1272D]">{{ selectedSeats.length }}</span> / {{ maxSeats }}
+            </div>
+            <div class="flex items-center gap-6 text-sm flex-wrap">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-gray-600 rounded"></div>
+                <span class="text-gray-700">Reservado</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-gray-500 rounded"></div>
+                <span class="text-gray-700">Disponible</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-cyan-500 rounded"></div>
+                <span class="text-gray-700">Seleccionado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen -->
+          <div class="mb-8">
+            <div class="w-full max-w-3xl mx-auto mb-12">
+              <svg viewBox="0 0 800 60" class="w-full" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <linearGradient
-                    id="screenGradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%"
-                  >
-                    <stop offset="0%" style="stop-color: #c1272d; stop-opacity: 1" />
-                    <stop offset="50%" style="stop-color: #9ca3af; stop-opacity: 1" />
-                    <stop offset="100%" style="stop-color: #c1272d; stop-opacity: 1" />
+                  <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#C1272D;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#888888;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#C1272D;stop-opacity:1" />
                   </linearGradient>
                 </defs>
-                <path
-                  d="M 20 50 Q 200 10, 380 50"
-                  stroke="url(#screenGradient)"
-                  stroke-width="8"
-                  fill="none"
-                  stroke-linecap="round"
-                  class="drop-shadow-lg"
-                />
+                <path d="M 50 40 Q 400 10, 750 40" stroke="url(#screenGradient)" stroke-width="3" fill="none"/>
               </svg>
+              <p class="text-center text-sm text-gray-500 mt-2">Pantalla</p>
             </div>
-            <p class="text-center text-sm text-gray-500 font-medium mt-2">
-              PANTALLA
-            </p>
-          </div>
 
-          <!-- Asientos -->
-          <div class="max-w-5xl mx-auto">
-            <div class="flex justify-center gap-12">
-              <!-- Sección izquierda -->
-              <div class="space-y-2">
-                <div
-                  v-for="row in seatRows"
-                  :key="row.label"
-                  class="flex items-center gap-3"
-                >
-                  <span
-                    class="text-sm text-gray-600 font-semibold w-6 text-right"
-                    >{{ row.label }}</span
-                  >
-                  <div class="flex gap-2">
-                    <button
-                      v-for="seat in row.seats"
-                      :key="seat.id"
-                      @click="toggleSeat(seat)"
-                      :disabled="
-                        seat.status === 'reserved' ||
-                        seat.status === 'distance'
-                      "
-                      :class="getSeatClass(seat)"
-                      class="w-8 h-8 rounded text-xs font-semibold transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {{ seat.status === "distance" ? "" : seat.number }}
-                    </button>
+            <!-- Seats Grid -->
+            <div class="max-w-4xl mx-auto">
+              <div class="flex justify-center gap-8">
+                <!-- Left Section -->
+                <div class="space-y-3">
+                  <div v-for="row in seatRows" :key="row.label" class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500 w-6 text-right font-medium">{{ row.label }}</span>
+                    <div class="flex gap-2">
+                      <button
+                        v-for="seat in row.seats"
+                        :key="seat.id"
+                        @click="toggleSeat(seat)"
+                        :disabled="seat.status === 'reserved'"
+                        :class="getSeatClass(seat)"
+                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {{ seat.number }}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Sección derecha -->
-              <div class="space-y-2">
-                <div
-                  v-for="row in rightSeatRows"
-                  :key="row.label"
-                  class="flex items-center gap-3"
-                >
-                  <div class="flex gap-2">
-                    <button
-                      v-for="seat in row.seats"
-                      :key="seat.id"
-                      @click="toggleSeat(seat)"
-                      :disabled="
-                        seat.status === 'reserved' ||
-                        seat.status === 'distance'
-                      "
-                      :class="getSeatClass(seat)"
-                      class="w-8 h-8 rounded text-xs font-semibold transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {{ seat.status === "distance" ? "" : seat.number }}
-                    </button>
+                <!-- Right Section -->
+                <div v-if="rightSeatRows.length > 0" class="space-y-3 ml-8">
+                  <div v-for="row in rightSeatRows" :key="row.label" class="flex items-center gap-2">
+                    <div class="flex gap-2">
+                      <button
+                        v-for="seat in row.seats"
+                        :key="seat.id"
+                        @click="toggleSeat(seat)"
+                        :disabled="seat.status === 'reserved'"
+                        :class="getSeatClass(seat)"
+                        class="w-8 h-8 rounded text-xs font-medium transition-all duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {{ seat.number }}
+                      </button>
+                    </div>
+                    <span class="text-xs text-gray-500 w-6 font-medium">{{ row.label }}</span>
                   </div>
-                  <span
-                    class="text-sm text-gray-600 font-semibold w-6"
-                    >{{ row.label }}</span
-                  >
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Botón de confirmación -->
-        <div class="pt-6 border-t border-gray-200">
+        <!-- Confirm Button -->
+        <div class="flex justify-center">
           <button
             @click="confirmReservation"
-            :disabled="selectedSeats.length === 0"
-            class="w-full bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:hover:scale-100 flex items-center justify-center gap-2"
+            :disabled="selectedSeats.length === 0 || loading"
+            class="bg-[#C1272D] hover:bg-[#8B1F23] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-12 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            Confirmar reserva
+            {{ loading ? 'Procesando...' : 'Continuar con la reserva' }}
           </button>
-          <p class="text-sm text-gray-500 mt-3 text-center">
-            {{
-              selectedSeats.length === 0
-                ? "Selecciona al menos un asiento para continuar"
-                : `Has seleccionado: ${selectedSeats.map((s) => s.id).join(", ")}`
-            }}
-          </p>
         </div>
       </div>
     </div>
@@ -281,12 +138,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
+import { supabase } from '../lib/supabase'
 
 const router = useRouter()
 const route = useRoute()
+const { currentUser } = useAuth()
 const maxSeats = 1
+
+interface Seat {
+  id: string
+  number: number
+  row: string
+  status: 'available' | 'reserved' | 'selected'
+}
+
+interface SeatRow {
+  label: string
+  seats: Seat[]
+}
+
+const selectedSeats = ref<Seat[]>([])
+const seatRows = ref<SeatRow[]>([])
+const rightSeatRows = ref<SeatRow[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
 
 // Obtener los datos de la película de los parámetros de la ruta
 const movie = computed(() => {
@@ -297,84 +175,123 @@ const movie = computed(() => {
   return movieData;
 })
 
-interface Seat {
-  id: string
-  number: string
-  row: string
-  status: 'available' | 'reserved' | 'vip' | 'selected' | 'distance'
-}
-
-const selectedSeats = ref<Seat[]>([])
-
 const goBack = () => {
   router.back()
 }
 
-// Funciones para formatear fecha y hora
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleDateString("es-ES", { month: "short" });
-  return `${day} ${month}`;
-};
+// Cargar asientos dinámicamente basándose en la capacidad de la sala
+const loadSeats = async () => {
+  try {
+    loading.value = true
+    error.value = null
 
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+    console.log('🎬 Datos de la película:', movie.value)
+    console.log('🏢 Sala ID:', movie.value.sala_id)
 
-const getSalaNumber = (salaId: string) => {
-  const lastDigit = salaId?.slice(-1);
-  return lastDigit;
-};
+    // 1. Obtener información de la sala
+    const { data: salaData, error: salaError } = await supabase
+      .from('sala')
+      .select('id, capacidad')
+      .eq('id', movie.value.sala_id)
+      .single()
 
-const generateSeats = (startRow: string, endRow: string, columns: number): any[] => {
-  const rows = []
-  const startChar = startRow.charCodeAt(0)
-  const endChar = endRow.charCodeAt(0)
-  
-  for (let i = startChar; i <= endChar; i++) {
-    const rowLabel = String.fromCharCode(i)
-    const seats: Seat[] = []
-    
-    for (let j = 1; j <= columns; j++) {
-      const seatNumber = j.toString().padStart(2, '0')
-      const isReserved = Math.random() > 0.7
-      
-      seats.push({
-        id: `${rowLabel}${seatNumber}`,
-        number: seatNumber,
-        row: rowLabel,
-        status: isReserved ? 'reserved' : 'available'
-      })
+    console.log('🏢 Datos de la sala:', salaData)
+    console.log('❌ Error de sala:', salaError)
+
+    if (salaError || !salaData) {
+      error.value = `La sala con ID ${movie.value.sala_id} no existe en la base de datos. Por favor, verifica que la película esté asociada a una sala válida.`
+      console.error('❌ Sala no encontrada. IDs de salas disponibles: Consulta tu base de datos.')
+      throw new Error('Sala no encontrada')
     }
-    
-    rows.push({ label: rowLabel, seats })
+
+    const capacidad = salaData.capacidad
+    console.log('📊 Capacidad:', capacidad)
+
+    // 2. Calcular número de filas y columnas basado en la capacidad
+    // Ratio aproximado de 1:2 (filas:columnas) para una sala de cine típica
+    const numFilas = Math.ceil(Math.sqrt(capacidad / 2))
+    const numColumnas = Math.ceil(capacidad / numFilas)
+    console.log(`📐 Matriz: ${numFilas} filas x ${numColumnas} columnas`)
+
+    // 3. Obtener asientos ya reservados para esta película
+    const { data: reservasData, error: reservasError } = await supabase
+      .from('reserva')
+      .select('asiento_id')
+      .eq('pelicula_id', movie.value.id)
+
+    if (reservasError) throw reservasError
+
+    const reservedSeatIds = new Set((reservasData || []).map(r => r.asiento_id))
+    console.log('🔒 Asientos reservados:', reservedSeatIds)
+
+    // 4. Generar asientos dinámicamente
+    const rows: SeatRow[] = []
+    let asientoCounter = 0
+
+    for (let i = 0; i < numFilas && asientoCounter < capacidad; i++) {
+      const fila = String.fromCharCode(65 + i) // A, B, C, D...
+      const seats: Seat[] = []
+
+      for (let j = 1; j <= numColumnas && asientoCounter < capacidad; j++) {
+        const seatId = `${salaData.id}-${fila}-${j}` // ID único generado
+        
+        seats.push({
+          id: seatId,
+          number: j,
+          row: fila,
+          status: reservedSeatIds.has(seatId) ? 'reserved' : 'available'
+        })
+        asientoCounter++
+      }
+
+      rows.push({ label: fila, seats })
+    }
+
+    console.log('💺 Filas generadas:', rows.length)
+    console.log('💺 Primera fila:', rows[0])
+
+    // 5. Dividir en dos secciones: 80% izquierda, 20% derecha
+    const leftRows: SeatRow[] = []
+    const rightRows: SeatRow[] = []
+
+    rows.forEach(row => {
+      const splitPoint = Math.ceil(row.seats.length * 0.8)
+      const leftSeats = row.seats.slice(0, splitPoint)
+      const rightSeats = row.seats.slice(splitPoint)
+
+      leftRows.push({ label: row.label, seats: leftSeats })
+      
+      if (rightSeats.length > 0) {
+        rightRows.push({ label: row.label, seats: rightSeats })
+      }
+    })
+
+    seatRows.value = leftRows
+    rightSeatRows.value = rightRows
+
+    console.log('✅ Asientos cargados - Izquierda:', seatRows.value.length, 'Derecha:', rightSeatRows.value.length)
+
+  } catch (err: any) {
+    console.error('❌ Error al cargar asientos:', err)
+    error.value = 'No se pudieron cargar los asientos. Por favor, intenta de nuevo.'
+  } finally {
+    loading.value = false
   }
-  
-  return rows
 }
 
-const seatRows = ref(generateSeats('A', 'G', 12))
-const rightSeatRows = ref(generateSeats('A', 'G', 3))
-
 const getSeatClass = (seat: Seat) => {
-  if (seat.status === 'distance') {
-    return 'bg-transparent border-2 border-gray-300'
-  }
   if (selectedSeats.value.some(s => s.id === seat.id)) {
-    return 'bg-blue-500 text-white shadow-lg'
+    return 'bg-cyan-500 text-white'
   }
   if (seat.status === 'reserved') {
-    return 'bg-gray-300 text-gray-500 border-2 border-gray-400 cursor-not-allowed'
+    return 'bg-gray-600 text-gray-800 cursor-not-allowed'
   }
-  return 'bg-gray-100 text-gray-700 border-2 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
+  return 'bg-gray-500 text-white hover:bg-gray-400'
 }
 
 const toggleSeat = (seat: Seat) => {
+  if (seat.status === 'reserved') return
+  
   const index = selectedSeats.value.findIndex(s => s.id === seat.id)
   
   if (index > -1) {
@@ -386,14 +303,94 @@ const toggleSeat = (seat: Seat) => {
   }
 }
 
-const confirmReservation = () => {
+const confirmReservation = async () => {
   if (selectedSeats.value.length === 0) return
   
-  console.log('Asientos seleccionados:', selectedSeats.value)
-  console.log('Película:', movie.value)
-  alert(`Has seleccionado: ${selectedSeats.value.map(s => s.id).join(', ')} para ${movie.value?.nombre}`)
-  router.push('/')
+  const selectedSeat = selectedSeats.value[0]
+  if (!selectedSeat) return
+
+  try {
+    loading.value = true
+
+    // 1. Verificar si el asiento existe en la tabla asiento
+    let { data: asientoExistente, error: asientoCheckError } = await supabase
+      .from('asiento')
+      .select('id')
+      .eq('sala_id', movie.value.sala_id)
+      .eq('fila', selectedSeat.row)
+      .eq('numero', selectedSeat.number)
+      .single()
+
+    if (asientoCheckError && asientoCheckError.code !== 'PGRST116') {
+      throw asientoCheckError
+    }
+
+    let asientoId: string
+
+    // 2. Si el asiento no existe, crearlo
+    if (!asientoExistente) {
+      const { data: nuevoAsiento, error: asientoInsertError } = await supabase
+        .from('asiento')
+        .insert({
+          sala_id: movie.value.sala_id,
+          fila: selectedSeat.row,
+          numero: selectedSeat.number
+        })
+        .select('id')
+        .single()
+
+      if (asientoInsertError) throw asientoInsertError
+      if (!nuevoAsiento) throw new Error('No se pudo crear el asiento')
+
+      asientoId = nuevoAsiento.id
+    } else {
+      asientoId = asientoExistente.id
+    }
+
+    // 3. Verificar si el asiento ya está reservado para esta película
+    const { data: reservaExistente, error: reservaCheckError } = await supabase
+      .from('reserva')
+      .select('id')
+      .eq('pelicula_id', movie.value.id)
+      .eq('asiento_id', asientoId)
+      .single()
+
+    if (reservaCheckError && reservaCheckError.code !== 'PGRST116') {
+      throw reservaCheckError
+    }
+
+    if (reservaExistente) {
+      alert('Este asiento ya ha sido reservado. Por favor, selecciona otro.')
+      await loadSeats() // Recargar asientos
+      return
+    }
+
+    // 4. Crear la reserva en la base de datos
+    const { error: insertError } = await supabase
+      .from('reserva')
+      .insert({
+        usuario_id: currentUser.value?.id,
+        pelicula_id: movie.value.id,
+        asiento_id: asientoId
+      })
+      .select()
+
+    if (insertError) throw insertError
+
+    alert(`¡Reserva confirmada! 🎉\nAsiento: ${selectedSeat.row}${selectedSeat.number}\nPelícula: ${movie.value.nombre}`)
+    router.push('/')
+  } catch (err: any) {
+    console.error('Error al crear reserva:', err)
+    alert('Error al crear la reserva. Por favor, intenta de nuevo.')
+  } finally {
+    loading.value = false
+  }
 }
+
+// Cargar asientos al montar el componente
+onMounted(() => {
+  loadSeats()
+})
 </script>
 
 <style scoped>
