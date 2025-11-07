@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
@@ -120,12 +120,9 @@
               <div class="flex flex-col sm:flex-row gap-6">
                 <!-- Details Column -->
                 <div class="flex-1 space-y-3">
-              <div class="flex flex-col sm:flex-row gap-6">
-                <!-- Details Column -->
-                <div class="flex-1 space-y-3">
                   <!-- Fecha y Hora -->
                   <div class="flex items-start gap-2">
-                    <CalendarIcon class="w-5 h-5 text-[#C1272D] flex-shrink-0 mt-0.5" />
+                    <CalendarIcon class="w-5 h-5 text-[#C1272D] shrink-0 mt-0.5" />
                     <div>
                       <p class="text-sm text-gray-600">Proyección</p>
                       <p class="font-semibold text-gray-900">
@@ -152,7 +149,7 @@
 
                   <!-- Sala -->
                   <div class="flex items-center gap-2">
-                    <MapPinIcon class="w-5 h-5 text-[#C1272D] flex-shrink-0" />
+                    <MapPinIcon class="w-5 h-5 text-[#C1272D] shrink-0" />
                     <div>
                       <p class="text-sm text-gray-600">Sala</p>
                       <p class="font-semibold text-gray-900">
@@ -163,7 +160,7 @@
 
                   <!-- Idioma -->
                   <div class="flex items-center gap-2">
-                    <LanguageIcon class="w-5 h-5 text-[#C1272D] flex-shrink-0" />
+                    <LanguageIcon class="w-5 h-5 text-[#C1272D] shrink-0" />
                     <div>
                       <p class="text-sm text-gray-600">Idioma</p>
                       <p class="font-semibold text-gray-900">
@@ -235,12 +232,12 @@
     <Teleport to="body">
       <div
         v-if="showCancelModal"
-        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[101]"
+        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-101"
         @click.self="closeCancelModal"
       >
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0">
+            <div class="shrink-0">
               <ExclamationCircleIcon class="w-10 h-10 text-yellow-500" />
             </div>
             <div class="flex-1">
@@ -276,13 +273,11 @@
                   No, Mantener
                 </button>
               </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </Teleport>
-  </div> <!-- End wrapper div -->
 </template>
 
 <script setup lang="ts">
