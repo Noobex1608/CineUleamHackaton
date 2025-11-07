@@ -8,14 +8,14 @@
       @close="showToast = false"
     />
     
-    <div class="bg-white border-b border-gray-200 py-6">
-      <div class="container mx-auto px-8">
+    <div class="bg-white border-b border-gray-200 py-4 sm:py-6">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <router-link
           to="/"
-          class="inline-flex items-center gap-2 text-gray-600 hover:text-[#C1272D] transition-colors font-medium"
+          class="inline-flex items-center gap-2 text-gray-600 hover:text-[#C1272D] transition-colors font-medium text-sm sm:text-base"
         >
           <svg
-            class="w-5 h-5"
+            class="w-4 h-4 sm:w-5 sm:h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -27,33 +27,34 @@
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          Volver a cartelera
+          <span class="hidden sm:inline">Volver a cartelera</span>
+          <span class="sm:hidden">Volver</span>
         </router-link>
       </div>
     </div>
 
-    <div class="container mx-auto px-8 py-12">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-1">
-          <div class="sticky top-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div class="lg:col-span-1 order-2 lg:order-1">
+          <div class="lg:sticky lg:top-24">
             <img
               :src="movie.url_poster"
               :alt="movie.nombre"
-              class="w-full rounded-2xl shadow-2xl"
+              class="w-full max-w-sm mx-auto lg:max-w-none rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl"
             />
           </div>
         </div>
 
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 order-1 lg:order-2 space-y-4 sm:space-y-6">
           <div>
-            <h1 class="text-5xl font-bold text-gray-900 mb-4">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
               {{ movie.nombre }}
             </h1>
-            <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
               <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-[#C1272D] text-white rounded-lg text-sm font-medium"
+                class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-[#C1272D] text-white rounded-lg text-xs sm:text-sm font-medium"
               >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z"
                   />
@@ -62,10 +63,10 @@
               </span>
 
               <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
+                class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-100 text-gray-700 rounded-lg text-xs sm:text-sm font-medium"
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-3 h-3 sm:w-4 sm:h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -77,14 +78,15 @@
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                {{ formatDate(movie.fecha_hora_proyeccion) }}
+                <span class="hidden sm:inline">{{ formatDate(movie.fecha_hora_proyeccion) }}</span>
+                <span class="sm:hidden">{{ formatDate(movie.fecha_hora_proyeccion).substring(0, 5) }}</span>
               </span>
 
               <span
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
+                class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-100 text-gray-700 rounded-lg text-xs sm:text-sm font-medium"
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-3 h-3 sm:w-4 sm:h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -101,29 +103,29 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Sinopsis</h2>
-            <p class="text-gray-700 text-lg leading-relaxed">
+          <div class="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Sinopsis</h2>
+            <p class="text-gray-700 text-sm sm:text-base lg:text-lg leading-relaxed">
               {{ movie.descripcion }}
             </p>
           </div>
 
-          <div class="bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+          <div class="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
               Función disponible
             </h2>
 
             <div
-              class="border-2 border-gray-200 rounded-xl p-6 hover:border-[#C1272D] transition-all cursor-pointer group"
+              class="border-2 border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 hover:border-[#C1272D] transition-all cursor-pointer group"
               @click="goToSeats"
             >
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex items-start gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div class="flex items-start gap-3 sm:gap-4">
                   <div
-                    class="bg-[#C1272D]/10 p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
+                    class="bg-[#C1272D]/10 p-2 sm:p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
                   >
                     <svg
-                      class="w-6 h-6 text-[#C1272D] group-hover:text-white transition-colors"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-[#C1272D] group-hover:text-white transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -137,19 +139,20 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500 font-medium mb-1">Fecha</p>
-                    <p class="text-lg text-gray-900 font-semibold">
-                      {{ formatFullDate(movie.fecha_hora_proyeccion) }}
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium mb-1">Fecha</p>
+                    <p class="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
+                      <span class="hidden sm:inline">{{ formatFullDate(movie.fecha_hora_proyeccion) }}</span>
+                      <span class="sm:hidden">{{ formatDate(movie.fecha_hora_proyeccion) }}</span>
                     </p>
                   </div>
                 </div>
 
-                <div class="flex items-start gap-4">
+                <div class="flex items-start gap-3 sm:gap-4">
                   <div
-                    class="bg-[#C1272D]/10 p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
+                    class="bg-[#C1272D]/10 p-2 sm:p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
                   >
                     <svg
-                      class="w-6 h-6 text-[#C1272D] group-hover:text-white transition-colors"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-[#C1272D] group-hover:text-white transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -163,21 +166,21 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500 font-medium mb-1">
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium mb-1">
                       Horario
                     </p>
-                    <p class="text-lg text-gray-900 font-semibold">
+                    <p class="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
                       {{ formatTime(movie.fecha_hora_proyeccion) }}
                     </p>
                   </div>
                 </div>
 
-                <div class="flex items-start gap-4">
+                <div class="flex items-start gap-3 sm:gap-4 sm:col-span-2 lg:col-span-1">
                   <div
-                    class="bg-[#C1272D]/10 p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
+                    class="bg-[#C1272D]/10 p-2 sm:p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
                   >
                     <svg
-                      class="w-6 h-6 text-[#C1272D] group-hover:text-white transition-colors"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-[#C1272D] group-hover:text-white transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -191,19 +194,19 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500 font-medium mb-1">Sala</p>
-                    <p class="text-lg text-gray-900 font-semibold">
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium mb-1">Sala</p>
+                    <p class="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
                       Sala {{ getSalaNumber(movie.sala_id) }}
                     </p>
                   </div>
                 </div>
 
-                <div class="flex items-start gap-4">
+                <div class="flex items-start gap-3 sm:gap-4 sm:col-span-2 lg:col-span-3">
                   <div
-                    class="bg-[#C1272D]/10 p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
+                    class="bg-[#C1272D]/10 p-2 sm:p-3 rounded-lg group-hover:bg-[#C1272D] transition-colors"
                   >
                     <svg
-                      class="w-6 h-6 text-[#C1272D] group-hover:text-white transition-colors"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-[#C1272D] group-hover:text-white transition-colors"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -217,20 +220,20 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500 font-medium mb-1">
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium mb-1">
                       Entrada
                     </p>
-                    <p class="text-lg text-gray-900 font-semibold">Gratis</p>
+                    <p class="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">Gratis</p>
                   </div>
                 </div>
               </div>
 
-              <div class="mt-6 pt-6 border-t border-gray-200">
+              <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                 <button
-                  class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                  class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <svg
-                    class="w-5 h-5"
+                    class="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -242,7 +245,8 @@
                       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                   </svg>
-                  Reservar asiento
+                  <span class="hidden sm:inline">Reservar asiento</span>
+                  <span class="sm:hidden">Reservar</span>
                 </button>
               </div>
             </div>
