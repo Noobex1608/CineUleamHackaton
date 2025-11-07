@@ -60,6 +60,18 @@
             <span>Admin</span>
           </router-link>
 
+          <!-- Enlace Mis Tickets (solo visible para usuarios autenticados) -->
+          <router-link
+            v-if="isAuthenticated && !isAdminPage"
+            to="/mis-tickets"
+            class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
+            role="menuitem"
+            aria-label="Ver mis tickets"
+          >
+            <TicketIcon class="w-4 h-4" aria-hidden="true" />
+            <span>Mis Tickets</span>
+          </router-link>
+
           <!-- Mostrar info del usuario si está autenticado -->
           <div v-if="isAuthenticated" class="flex items-center gap-2 lg:gap-3">
             <span class="text-xs lg:text-sm text-gray-600 hidden lg:block">
@@ -190,6 +202,19 @@
           <span>Admin</span>
         </router-link>
 
+        <!-- Enlace Mis Tickets móvil (solo para usuarios autenticados) -->
+        <router-link
+          v-if="isAuthenticated && !isAdminPage"
+          to="/mis-tickets"
+          @click="toggleMenu"
+          class="flex items-center gap-3 text-gray-700 font-medium hover:text-[#C1272D] transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-[#C1272D] rounded px-2"
+          role="menuitem"
+          aria-label="Ver mis tickets"
+        >
+          <TicketIcon class="w-5 h-5" aria-hidden="true" />
+          <span>Mis Tickets</span>
+        </router-link>
+
 
         <div v-if="isAuthenticated" class="space-y-3">
           <div class="px-2 py-2 text-sm text-gray-600 border-t border-gray-200">
@@ -259,6 +284,7 @@ import {
   Bars3Icon,
   CogIcon,
   FilmIcon,
+  TicketIcon,
   UserPlusIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";

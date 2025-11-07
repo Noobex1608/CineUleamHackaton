@@ -228,11 +228,56 @@ export const useReservations = () => {
     }
   };
 
+  // Función para obtener el historial de reservas del usuario
+  const getUserReservations = async (userId: string) => {
+    try {
+      console.log("📚 Obteniendo historial de reservas para usuario:", userId);
+
+      const { data, error } = await supabase
+        .from("reserva")
+        .select(`
+          id,
+          fecha_creacion,
+          pelicula:pelicula_id (
+            id,
+            nombre,
+            descripcion,
+            url_poster,
+            idioma,
+            fecha_hora_proyeccion,
+            sala:sala_id (
+              nombre,
+              capacidad
+            )
+          ),
+          asiento:asiento_id (
+            id,
+            fila,
+            numero
+          )
+        `)
+        .eq("usuario_id", userId)
+        .order("fecha_creacion", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error obteniendo historial:", error);
+        throw new Error(`Error al obtener historial: ${error.message}`);
+      }
+
+      console.log("✅ Historial obtenido:", data);
+      return data || [];
+    } catch (error: any) {
+      console.error("❌ Error en getUserReservations:", error);
+      throw error;
+    }
+  };
+
   return {
     checkExistingReservation,
     getSeatId,
     checkSeatReservation,
     createReservation,
     deleteReservation,
+    getUserReservations,
   };
 };

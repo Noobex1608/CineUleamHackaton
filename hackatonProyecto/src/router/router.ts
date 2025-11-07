@@ -8,6 +8,7 @@ import Registro from "../pages/Registro.vue";
 import Reserve from "../pages/Reserve.vue";
 import ResetPassword from "../pages/ResetPassword.vue";
 import AlquilerSala from "../pages/AlquilerSala.vue";
+import MisTickets from "../pages/MisTickets.vue";
 
 const routes = [
   {
@@ -44,6 +45,12 @@ const routes = [
     path: "/alquiler-sala",
     name: "alquilerSala",
     component: AlquilerSala,
+  },
+  {
+    path: "/mis-tickets",
+    name: "misTickets",
+    component: MisTickets,
+    meta: { requiresAuth: true }
   },
   {
     path: "/admin",
