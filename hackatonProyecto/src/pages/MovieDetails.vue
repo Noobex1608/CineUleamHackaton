@@ -196,7 +196,7 @@
                   <div>
                     <p class="text-xs sm:text-sm text-gray-500 font-medium mb-1">Sala</p>
                     <p class="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
-                      Sala {{ getSalaNumber(movie.sala_id) }}
+                      {{ movie.sala?.nombre || 'Sala no especificada' }}
                     </p>
                   </div>
                 </div>
@@ -308,11 +308,6 @@ const formatFullDate = (dateString: string) => {
     month: "long",
     day: "numeric",
   });
-};
-
-const getSalaNumber = (salaId: string) => {
-  const lastDigit = salaId.slice(-1);
-  return lastDigit;
 };
 
 const goToSeats = () => {

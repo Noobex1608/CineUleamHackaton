@@ -60,12 +60,12 @@
 
 
       <div 
-        v-if="movie.sala_id" 
+        v-if="movie.sala?.nombre" 
         class="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 bg-[#C1272D] bg-opacity-95 text-white font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs shadow-lg"
         role="note"
       >
-        <span class="hidden sm:inline">Sala {{ getSalaNumber(movie.sala_id) }}</span>
-        <span class="sm:hidden">S{{ getSalaNumber(movie.sala_id) }}</span>
+        <span class="hidden sm:inline">{{ movie.sala.nombre }}</span>
+        <span class="sm:hidden">{{ movie.sala.nombre.substring(0, 6) }}</span>
       </div>
 
     </div>
@@ -164,11 +164,11 @@
               <span class="sm:hidden">{{ movie.idioma.substring(0, 3) }}</span>
             </span>
             <span 
-              v-if="movie.sala_id"
+              v-if="movie.sala?.nombre"
               class="bg-[#C1272D] text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap"
             >
-              <span class="hidden sm:inline">Sala {{ getSalaNumber(movie.sala_id) }}</span>
-              <span class="sm:hidden">S{{ getSalaNumber(movie.sala_id) }}</span>
+              <span class="hidden sm:inline">{{ movie.sala.nombre }}</span>
+              <span class="sm:hidden">{{ movie.sala.nombre.substring(0, 6) }}</span>
             </span>
           </div>
         </div>
@@ -226,6 +226,11 @@ export interface Movie {
   idioma?: string
   fecha_hora_proyeccion: string // timestamp
   sala_id: string // uuid
+  sala?: {
+    id: string
+    nombre: string
+    capacidad: number
+  }
 }
 
 
@@ -343,19 +348,6 @@ const formatTime = (dateString: string) => {
     minute: '2-digit',
     hour12: false 
   })
-}
-
-const getSalaNumber = (salaId: string) => {
-  // Manejo seguro para extraer número de sala
-  const parts = salaId.split('-')
-  if (parts.length === 0) return 1
-  
-  const hash = parts[0]
-  if (!hash || hash.length === 0) return 1
-  
-  // Intentar extraer número del hash o usar un cálculo alternativo
-  const parsed = parseInt(hash.substring(0, 2), 16)
-  return isNaN(parsed) ? 1 : (parsed % 10) || 1
 }
 </script>
 

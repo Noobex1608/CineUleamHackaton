@@ -6,4 +6,9 @@ export interface Pelicula {
   idioma?: string
   fecha_hora_proyeccion: string
   sala_id: string
+  sala?: {
+    id: string
+    nombre: string
+    capacidad: number
+  }
 }

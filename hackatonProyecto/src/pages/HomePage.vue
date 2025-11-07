@@ -395,7 +395,14 @@ const loadPeliculas = async () => {
     
     const { data, error: supabaseError } = await supabase
       .from('pelicula')
-      .select('*')
+      .select(`
+        *,
+        sala:sala_id (
+          id,
+          nombre,
+          capacidad
+        )
+      `)
       .order('fecha_hora_proyeccion', { ascending: true })
     
     if (supabaseError) {
