@@ -29,18 +29,14 @@
       <div class="relative z-10 container mx-auto px-8 h-full flex flex-col justify-center">
         <div class="max-w-3xl">
           <h1 id="hero-heading" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight animate-fade-in">
-            Hola,
+            {{ welcomeTitle }}
           </h1>
           <p class="text-2xl md:text-3xl lg:text-4xl text-white font-light mb-8 animate-fade-in-delay">
-            disfruta lo mejor del cine
+            {{ welcomeSubtitle }}
           </p>
           <div class="flex gap-4 animate-fade-in-delay-2">
-            <button class="bg-white text-[#C1272D] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-              Ver Cartelera
-            </button>
-            <button class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-[#C1272D] transition-all">
-              Próximamente
-            </button>
+
+
           </div>
         </div>
       </div>
@@ -357,9 +353,26 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Movie, { type Movie as MovieType } from '../components/Movie.vue'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../composables/useAuth'
 import type { Pelicula } from '../interfaces/Pelicula'
 
 const router = useRouter()
+const { isAuthenticated, currentUser } = useAuth()
+
+// Computed para el mensaje de bienvenida personalizado
+const welcomeTitle = computed(() => {
+  if (isAuthenticated.value && currentUser.value?.nombre) {
+    return `Hola, ${currentUser.value.nombre}`
+  }
+  return 'Bienvenido al CineUleam'
+})
+
+const welcomeSubtitle = computed(() => {
+  if (isAuthenticated.value) {
+    return 'disfruta lo mejor de nuestro cine'
+  }
+  return 'disfruta lo mejor del cine'
+})
 
 
 const tabs = [

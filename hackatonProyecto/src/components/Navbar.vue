@@ -22,17 +22,7 @@
         </div>
 
         <div class="hidden md:flex items-center gap-4" role="menubar">
-          <!-- Solo mostrar Cartelera si NO estamos en la página de admin -->
-          <router-link
-            v-if="!isAdminPage"
-            to="/#cartelera"
-            class="text-gray-700 text-sm font-medium hover:text-[#C1272D] transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#C1272D] focus:ring-offset-2 rounded px-2 py-1"
-            role="menuitem"
-            aria-label="Ver cartelera de películas"
-          >
-            <FilmIcon class="w-4 h-4" aria-hidden="true" />
-            <span>Cartelera</span>
-          </router-link>
+
 
           <!-- Enlace para volver al inicio si estamos en la página de admin -->
           <router-link
