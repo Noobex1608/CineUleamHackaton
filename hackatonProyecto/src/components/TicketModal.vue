@@ -2,22 +2,26 @@
   <Transition name="modal">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-20 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-md"
+      @click="closeModal"
     >
       <div
         ref="ticketRef"
-        class="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden transform transition-all"
+        class="bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl max-w-72 w-full overflow-hidden transform transition-all border border-white/20"
+        style="font-family: 'Inter', 'Segoe UI', sans-serif; backdrop-filter: blur(20px); max-height: 80vh; overflow-y: auto;"
+        @click.stop
       >
-        <!-- Header -->
+        <!-- Header ultra compacto -->
         <div
-          class="bg-linear-to-r from-[#C1272D] to-[#8B1F23] p-3 text-white relative"
+          class="bg-linear-to-r from-[#C1272D] via-[#DC2626] to-[#8B1F23] p-2 text-white relative"
+          style="background: linear-gradient(135deg, #C1272D 0%, #DC2626 50%, #8B1F23 100%);"
         >
           <button
             @click="closeModal"
-            class="absolute top-2 right-2 text-white hover:text-gray-200 transition-colors bg-white/20 rounded-full p-1"
+            class="absolute top-1 right-1 text-white hover:text-gray-200 transition-colors bg-white/20 rounded-full p-0.5 backdrop-blur-sm"
           >
             <svg
-              class="w-4 h-4"
+              class="w-3 h-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -30,102 +34,108 @@
               />
             </svg>
           </button>
-          <div class="flex items-center gap-2 mb-1">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
-              />
-            </svg>
-            <h2 class="text-lg font-bold">¡Reserva Confirmada!</h2>
+          
+          <div class="text-center">
+            <h2 class="text-sm font-bold">CineUleam</h2>
+            <p class="text-xs text-white/90">ENTRADA DIGITAL</p>
+            <div class="mt-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 inline-block">
+              <p class="text-xs font-semibold">¡Reserva Confirmada!</p>
+            </div>
           </div>
-          <p class="text-xs text-white/90">
-            Tu entrada ha sido generada exitosamente
-          </p>
         </div>
 
-        <!-- Ticket Content -->
-        <div class="p-3 space-y-2">
-          <!-- Movie Info -->
-          <div class="border-b border-gray-200 pb-2">
-            <h3 class="text-base font-bold text-gray-800 mb-0.5">
+        <!-- Ticket Content ultra compacto -->
+        <div class="p-2 space-y-2 bg-white/80 backdrop-blur-sm">
+          <!-- Movie Info mini -->
+          <div class="bg-linear-to-r from-gray-900 to-gray-700 rounded-md p-2 text-white">
+            <h3 class="text-xs font-bold mb-1 leading-tight">
               {{ ticketData.movieName }}
             </h3>
-            <p class="text-xs text-gray-600">{{ ticketData.movieLanguage }}</p>
+            <div class="flex items-center gap-1">
+              <span class="bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 text-xs">
+                {{ ticketData.movieLanguage }}
+              </span>
+            </div>
           </div>
 
-          <!-- Details Grid -->
-          <div class="grid grid-cols-2 gap-2">
-            <!-- Fecha y Hora -->
-            <div class="bg-gray-50 rounded-lg p-1.5">
-              <p class="text-xs text-gray-500 mb-0.5">Fecha</p>
-              <p class="font-semibold text-gray-800 text-xs">
+          <!-- Details Grid mini -->
+          <div class="grid grid-cols-2 gap-1">
+            <!-- Fecha -->
+            <div class="bg-white/90 rounded p-1.5 border border-blue-100 text-center">
+              <p class="text-xs text-blue-600 font-semibold">📅 FECHA</p>
+              <p class="font-bold text-gray-800 text-xs">
                 {{ formatDate(ticketData.dateTime) }}
               </p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-1.5">
-              <p class="text-xs text-gray-500 mb-0.5">Hora</p>
-              <p class="font-semibold text-gray-800 text-xs">
+            
+            <!-- Hora -->
+            <div class="bg-white/90 rounded p-1.5 border border-green-100 text-center">
+              <p class="text-xs text-green-600 font-semibold">🕐 HORA</p>
+              <p class="font-bold text-gray-800 text-xs">
                 {{ formatTime(ticketData.dateTime) }}
               </p>
             </div>
 
             <!-- Sala -->
-            <div class="bg-gray-50 rounded-lg p-1.5">
-              <p class="text-xs text-gray-500 mb-0.5">Sala</p>
-              <p class="font-semibold text-gray-800 text-xs">
+            <div class="bg-white/90 rounded p-1.5 border border-purple-100 text-center">
+              <p class="text-xs text-purple-600 font-semibold">🏢 SALA</p>
+              <p class="font-bold text-gray-800 text-xs">
                 {{ ticketData.salaName }}
               </p>
             </div>
 
             <!-- Asiento -->
-            <div class="bg-gray-50 rounded-lg p-1.5">
-              <p class="text-xs text-gray-500 mb-0.5">Asiento</p>
-              <p class="font-semibold text-gray-800 text-sm">
+            <div class="bg-white/90 rounded p-1.5 border border-red-100 text-center">
+              <p class="text-xs text-red-600 font-semibold">💺 ASIENTO</p>
+              <p class="font-bold text-gray-800 text-sm">
                 {{ ticketData.seatRow }}{{ ticketData.seatNumber }}
               </p>
             </div>
           </div>
 
-          <!-- Usuario -->
-          <div class="bg-linear-to-r from-gray-50 to-gray-100 rounded-lg p-1.5">
-            <p class="text-xs text-gray-500 mb-0.5">Reservado por</p>
-            <p class="font-semibold text-gray-800 text-xs">{{ ticketData.userName }}</p>
-            <p class="text-xs text-gray-600">{{ ticketData.userEmail }}</p>
+          <!-- Usuario mini -->
+          <div class="bg-linear-to-r from-gray-900 to-gray-800 rounded p-1.5 text-white">
+            <p class="text-xs font-semibold text-white/90 mb-1">👤 {{ ticketData.userName }}</p>
+            <p class="text-xs text-white/70">{{ ticketData.userEmail }}</p>
           </div>
 
-          <!-- QR Code -->
-          <div class="flex justify-center py-1">
-            <div
-              class="bg-white p-2 rounded-xl border-2 border-gray-200 shadow-sm"
-            >
-              <canvas ref="qrCanvas" class="w-24 h-24"></canvas>
+          <!-- QR Code mini -->
+          <div class="text-center">
+            <p class="text-xs font-semibold text-gray-700 mb-1">CÓDIGO QR</p>
+            <div class="flex justify-center">
+              <div class="bg-white/90 p-1.5 rounded border border-gray-200">
+                <canvas ref="qrCanvas" class="w-12 h-12"></canvas>
+              </div>
             </div>
           </div>
 
-          <!-- Reservation ID -->
-          <div class="text-center">
-            <p class="text-xs text-gray-500 mb-0.5">ID de Reserva</p>
-            <p
-              class="font-mono text-xs text-gray-800 bg-gray-100 py-1 px-2 rounded-lg inline-block"
-            >
-              {{ ticketData.reservationId.substring(0, 13) }}...
+          <!-- ID Reserva mini -->
+          <div class="text-center bg-gray-100/80 rounded p-1.5">
+            <p class="text-xs text-gray-600 mb-1 font-semibold">ID RESERVA</p>
+            <p class="font-mono text-xs text-gray-800 bg-white/90 py-1 px-2 rounded">
+              {{ ticketData.reservationId.substring(0, 8) }}
             </p>
           </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div class="bg-gray-50 p-2 space-y-1.5">
+        <!-- Footer Actions compacto con fondo semi-transparente -->
+        <div class="bg-gray-50/80 backdrop-blur-sm p-3 space-y-2 border-t border-[#C1272D]/20">
+          <!-- Instrucciones importantes compactas -->
+          <div class="bg-yellow-50/80 border-l-2 border-yellow-400 p-2 rounded-r-md">
+            <div class="flex items-start gap-2">
+              <svg class="w-3 h-3 text-yellow-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div class="text-yellow-800">
+                <p class="text-xs font-semibold">Importante:</p>
+                <p class="text-xs">Presenta este email o código QR en la entrada</p>
+              </div>
+            </div>
+          </div>
+          
           <button
             @click="downloadTicket"
-            class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-semibold py-2 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 text-xs"
+            class="w-full bg-[#C1272D] hover:bg-[#8B1F23] text-white font-bold py-2 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 text-xs shadow-md"
           >
             <svg
               class="w-4 h-4"
@@ -140,14 +150,16 @@
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-            Descargar Ticket
+            Descargar PDF
           </button>
+          
           <button
             @click="sendEmail"
             :disabled="emailSending"
-            class="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold py-2 rounded-lg border-2 border-gray-300 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+            class="w-full bg-white/90 hover:bg-gray-50 text-gray-800 font-bold py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs shadow-sm"
           >
             <svg
+              v-if="!emailSending"
               class="w-4 h-4"
               fill="none"
               stroke="currentColor"
@@ -157,11 +169,29 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            {{ emailSending ? "Enviando..." : "Enviar a mi correo" }}
+            <svg
+              v-else
+              class="w-4 h-4 animate-spin"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            {{ emailSending ? "Enviando..." : "Enviar PDF" }}
           </button>
+          
+          <p class="text-xs text-gray-500 text-center">
+            Válido 30 min antes de la función
+          </p>
         </div>
       </div>
     </div>
@@ -171,13 +201,13 @@
 <script setup lang="ts">
 import QRCode from "qrcode";
 import { nextTick, onMounted, ref, watch } from "vue";
-import { useImageCapture } from "../composables/useImageCapture";
 import { useNotifications } from "../composables/useNotifications";
+import { usePDFTicket, type TicketPDFData } from "../composables/usePDFTicket";
 import { useSupabaseHelpers } from "../composables/useSupabaseHelpers";
 
 const { sendEmailWithRetry } = useSupabaseHelpers();
-const { showSuccess, handleEmailError, handleImageError } = useNotifications();
-const { captureTicketImage } = useImageCapture();
+const { showSuccess, handleEmailError } = useNotifications();
+const { generateTicketPDFAsBase64, downloadTicketPDF } = usePDFTicket();
 
 interface TicketData {
   reservationId: string;
@@ -237,7 +267,7 @@ const generateQR = async () => {
 
   try {
     await QRCode.toCanvas(qrCanvas.value, qrData, {
-      width: 96,
+      width: 64, // Reducido de 96 a 64
       margin: 1,
       color: {
         dark: "#1F2937",
@@ -254,35 +284,56 @@ const closeModal = () => {
 };
 
 const downloadTicket = async () => {
-  if (!ticketRef.value) return;
-
   try {
-    // Capturar el ticket usando el composable mejorado
-    const dataUrl = await captureTicketImage(ticketRef.value);
+    // Preparar datos del ticket para PDF
+    const ticketPDFData: TicketPDFData = {
+      reservationId: props.ticketData.reservationId,
+      movieName: props.ticketData.movieName,
+      movieLanguage: props.ticketData.movieLanguage,
+      dateTime: props.ticketData.dateTime,
+      salaName: props.ticketData.salaName,
+      seatRow: props.ticketData.seatRow,
+      seatNumber: props.ticketData.seatNumber,
+      userName: props.ticketData.userName,
+      userEmail: props.ticketData.userEmail
+    };
 
-    // Descargar la imagen
-    const link = document.createElement('a');
-    link.download = `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.png`;
-    link.href = dataUrl;
-    link.click();
+    // Generar y descargar PDF
+    await downloadTicketPDF(
+      ticketPDFData, 
+      `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.pdf`
+    );
 
-    showSuccess('Descarga Exitosa', 'Tu ticket se ha descargado correctamente.');
+    showSuccess('Descarga Exitosa', 'Tu ticket PDF se ha descargado correctamente.');
   } catch (error) {
-    console.error('Error al descargar ticket:', error);
-    handleImageError(error);
+    console.error('Error al descargar ticket PDF:', error);
+    handleEmailError(error);
   }
 };
 
 const sendEmail = async () => {
-  if (!ticketRef.value) return;
-  
   emailSending.value = true;
 
   try {
-    // Capturar el ticket usando el composable mejorado
-    const imageBase64 = await captureTicketImage(ticketRef.value);
+    // Preparar datos del ticket para PDF
+    const ticketPDFData: TicketPDFData = {
+      reservationId: props.ticketData.reservationId,
+      movieName: props.ticketData.movieName,
+      movieLanguage: props.ticketData.movieLanguage,
+      dateTime: props.ticketData.dateTime,
+      salaName: props.ticketData.salaName,
+      seatRow: props.ticketData.seatRow,
+      seatNumber: props.ticketData.seatNumber,
+      userName: props.ticketData.userName,
+      userEmail: props.ticketData.userEmail
+    };
+
+    // Generar PDF como base64
+    console.log('📄 Generando PDF del ticket...');
+    const pdfBase64 = await generateTicketPDFAsBase64(ticketPDFData);
+    console.log('✅ PDF generado, tamaño base64:', pdfBase64.length, 'caracteres');
     
-    // Preparar datos del email
+    // Preparar datos del email con contenido mejorado
     const emailData = {
       to: props.ticketData.userEmail,
       userName: props.ticketData.userName,
@@ -291,16 +342,50 @@ const sendEmail = async () => {
       dateTime: `${formatDate(props.ticketData.dateTime)} a las ${formatTime(props.ticketData.dateTime)}`,
       sala: props.ticketData.salaName,
       seat: `${props.ticketData.seatRow}${props.ticketData.seatNumber}`,
-      reservationId: props.ticketData.reservationId.substring(0, 8),
-      ticketImage: imageBase64 // Incluir la imagen del ticket con QR
+      reservationId: props.ticketData.reservationId,
+      shortReservationId: props.ticketData.reservationId.substring(0, 8),
+      // Incluir tanto el PDF como datos de respaldo
+      ticketPDF: pdfBase64, // PDF del ticket como adjunto base64
+      pdfFileName: `ticket-cineuleam-${props.ticketData.reservationId.substring(0, 8)}.pdf`,
+      // Datos del ticket para mostrar en el email HTML
+      ticketInfo: {
+        movieName: props.ticketData.movieName,
+        movieLanguage: props.ticketData.movieLanguage,
+        dateTime: `${formatDate(props.ticketData.dateTime)} a las ${formatTime(props.ticketData.dateTime)}`,
+        sala: props.ticketData.salaName,
+        seat: `${props.ticketData.seatRow}${props.ticketData.seatNumber}`,
+        userName: props.ticketData.userName,
+        userEmail: props.ticketData.userEmail,
+        reservationId: props.ticketData.reservationId.substring(0, 8)
+      },
+      subject: `🎬 Tu entrada para ${props.ticketData.movieName} - CineUleam`,
+      // Datos adicionales para el template del email
+      companyName: 'CineUleam',
+      supportEmail: 'soporte@cineuleam.com',
+      websiteUrl: 'https://cineuleam.com',
+      // Instrucciones importantes
+      instructions: [
+        'Presenta el PDF adjunto o escanea el código QR en la entrada del cinema',
+        'Llega 30 minutos antes del inicio de la función',
+        'Este ticket es válido únicamente para la función, fecha y asiento especificados',
+        'En caso de problemas, contacta nuestro equipo de soporte'
+      ]
     };
+
+    console.log('📧 Enviando email con datos:', {
+      to: emailData.to,
+      subject: emailData.subject,
+      hasPDF: !!emailData.ticketPDF,
+      pdfSize: emailData.ticketPDF?.length || 0,
+      hasTicketInfo: !!emailData.ticketInfo
+    });
 
     // Usar el helper mejorado para enviar email con reintentos
     const result = await sendEmailWithRetry(emailData);
 
     if (result.success) {
       console.log('✉️ Email enviado exitosamente a:', props.ticketData.userEmail);
-      showSuccess('Email Enviado', `Tu ticket fue enviado a ${props.ticketData.userEmail}`);
+      showSuccess('Email Enviado', `Tu ticket PDF fue enviado a ${props.ticketData.userEmail}`);
     } else {
       console.error('❌ Error al enviar email después de varios intentos:', result.error);
       handleEmailError(result.error);
@@ -337,18 +422,93 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Animaciones del modal con glassmorphism */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+  backdrop-filter: blur(0px);
 }
 
-.modal-enter-from .bg-white,
-.modal-leave-to .bg-white {
-  transform: scale(0.9) translateY(20px);
+.modal-enter-from > div,
+.modal-leave-to > div {
+  transform: scale(0.7) translateY(-50px);
+  opacity: 0;
+}
+
+/* Efecto glassmorphism para el ticket */
+.bg-white\/95 {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.bg-white\/80 {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.bg-white\/90 {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.bg-gray-50\/80 {
+  background: rgba(249, 250, 251, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.bg-yellow-50\/80 {
+  background: rgba(254, 252, 232, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+/* Mejoras visuales adicionales */
+.rounded-xl {
+  border-radius: 12px;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+/* Efecto hover suave para botones */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Sombras suaves para glassmorphism */
+.shadow-2xl {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.shadow-md {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.shadow-sm {
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -104,24 +104,91 @@ export const useReservations = () => {
     usuario_id: string;
     pelicula_id: string;
     asiento_id: string;
-    fecha_reserva: string;
   }) => {
     try {
       console.log("📝 Creando nueva reserva:", reservaData);
 
+      // Validar que los IDs no estén vacíos
+      if (
+        !reservaData.usuario_id ||
+        !reservaData.pelicula_id ||
+        !reservaData.asiento_id
+      ) {
+        throw new Error("Faltan datos requeridos para crear la reserva");
+      }
+
+      // Verificación adicional: comprobar si ya existe una reserva para este usuario y película
+      console.log("🔍 Verificando duplicados antes de insertar...");
+      const existingUserReservation = await checkExistingReservation(
+        reservaData.usuario_id,
+        reservaData.pelicula_id
+      );
+
+      if (existingUserReservation) {
+        throw new Error("Ya tienes una reserva para esta película");
+      }
+
+      // Verificación adicional: comprobar si el asiento ya está reservado
+      const existingSeatReservation = await checkSeatReservation(
+        reservaData.pelicula_id,
+        reservaData.asiento_id
+      );
+
+      if (existingSeatReservation) {
+        throw new Error("Este asiento ya está reservado");
+      }
+
+      // Crear el objeto con la estructura exacta esperada por la base de datos
+      // Solo enviamos los campos requeridos, fecha_creacion es automática
+      const reservaToInsert = {
+        usuario_id: reservaData.usuario_id,
+        pelicula_id: reservaData.pelicula_id,
+        asiento_id: reservaData.asiento_id,
+        // fecha_creacion se genera automáticamente en la DB
+      };
+
+      console.log("📝 Datos a insertar:", reservaToInsert);
+
       const { data, error } = await supabase
         .from("reserva")
-        .insert([reservaData])
-        .select();
+        .insert(reservaToInsert)
+        .select("*")
+        .single();
 
       if (error) {
-        console.error("❌ Error creando reserva:", error);
-        throw error;
+        console.error("❌ Error creando reserva:", {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+
+        // Manejar errores específicos
+        if (error.code === "23505") {
+          throw new Error(
+            "Ya existe una reserva para este asiento o usuario en esta película"
+          );
+        } else if (error.code === "23503") {
+          throw new Error(
+            "Error de referencia: verifica que el usuario, película y asiento existan"
+          );
+        } else if (error.code === "42703") {
+          throw new Error(
+            "Error de columna: verifica la estructura de la tabla reserva"
+          );
+        } else {
+          throw new Error(`Error al crear reserva: ${error.message}`);
+        }
+      }
+
+      if (!data) {
+        throw new Error("No se pudo crear la reserva - sin datos devueltos");
       }
 
       console.log("✅ Reserva creada exitosamente:", data);
-      return data[0];
-    } catch (error) {
+      return data;
+    } catch (error: any) {
       console.error("❌ Error en createReservation:", error);
       throw error;
     }

@@ -496,8 +496,8 @@ const confirmReservation = async () => {
     const nuevaReserva = await createReservation({
       usuario_id: currentUser.value?.id || '',
       pelicula_id: movie.value.id,
-      asiento_id: asientoId,
-      fecha_reserva: new Date().toISOString()
+      asiento_id: asientoId
+      // fecha_creacion se genera automáticamente en la base de datos
     })
     
     if (!nuevaReserva) throw new Error('No se pudo crear la reserva')

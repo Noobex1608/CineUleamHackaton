@@ -11,7 +11,7 @@
     @keydown.space.prevent="$emit('view-details', movie)"
   >
 
-    <div class="relative aspect-[2/3] overflow-hidden bg-gray-100">
+    <div class="relative aspect-2/3 overflow-hidden bg-gray-100">
       <img 
         :src="displayPoster" 
         :alt="`Póster de la película ${movie.nombre}`"
@@ -98,7 +98,7 @@
 
 
       <div class="flex items-center justify-between text-xs text-gray-500 pt-2 sm:pt-3 border-t border-gray-100">
-        <span v-if="movie.idioma" class="flex items-center gap-1 hidden sm:flex">
+        <span v-if="movie.idioma" class="hidden sm:flex items-center gap-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
           </svg>
@@ -127,7 +127,7 @@
     @keydown.space.prevent="$emit('view-details', movie)"
   >
     <!-- Imagen del póster -->
-    <div class="relative w-24 sm:w-32 md:w-40 flex-shrink-0 overflow-hidden bg-gray-100">
+    <div class="relative w-24 sm:w-32 md:w-40 shrink-0 overflow-hidden bg-gray-100">
       <img 
         :src="displayPoster" 
         :alt="`Póster de la película ${movie.nombre}`"
@@ -214,8 +214,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { StarIcon } from '@heroicons/vue/24/solid'
+import { computed, ref } from 'vue'
 
 
 export interface Movie {
